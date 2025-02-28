@@ -85,12 +85,12 @@ public class UserController {
     }
 
     @DeleteMapping("/delete/{userId}")
-    public ResponseEntity<String> deleteUserById(@PathVariable UUID userId) {
+    public String deleteUserById(@PathVariable UUID userId) {
         try {
             userService.deleteUserById(userId);
-            return ResponseEntity.ok("User deleted successfully");
+            return "User deleted successfully";
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to delete user");
+            return "User not found";
         }
     }
 }

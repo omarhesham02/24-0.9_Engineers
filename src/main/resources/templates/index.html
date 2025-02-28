@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini-Project 1</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="jumbotron text-center">
+            <h1 class="display-4">Welcome to Mini-Project 1!</h1>
+            <h2>Team 24 - 0.9 Engineers</h2>
+            <p class="lead"><a href="https://github.com/omarhesham02/24-0.9_Engineers">Repo Link</a></p>
+            <hr class="my-4">
+            <h3>Available Endpoints:</h3>
+            <h4 class="text-left">User:</h4>
+            <ul class="text-left">
+                <li><code>GET /user/</code> - Get all users</li>
+                <li><code>POST /user/</code> - Add a new user</li>
+                <li><code>GET /user/{userId}/orders</code> - Get orders by user ID</li>
+                <li><code>POST /user/{userId}/checkout</code> - Add order to user</li>
+                <li><code>POST /user/{userId}/removeOrder</code> - Remove order from user</li>
+                <li><code>DELETE /user/{userId}/emptyCart</code> - Empty cart</li>
+                <li><code>PUT /user/addProductToCart</code> - Add product to cart</li>
+                <li><code>PUT /user/deleteProductFromCart</code> - Delete product from cart</li>
+                <li><code>DELETE /user/delete/{userId}</code> - Delete user by ID</li>
+            </ul>
+        </div>
+    </div>
+
+    <footer class="footer bg-light text-center py-3">
+        <div class="container">
+            <span class="text-muted">© 2025 Mini-Project 1. All rights reserved.</span>
+            <br>
+            <span class="text-muted">Contributors: Hossain Ghoraba, Mohammed Tammaa, Omar Hesham, Omar Tamer</span>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

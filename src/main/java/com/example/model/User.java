@@ -15,13 +15,18 @@ public class User {
     public User() {
     }
 
-    public User(String name) {
-        this.id = UUID.randomUUID();
+    public User(UUID userID, String name) {
+        this.id = userID;
         this.name = name;
+        this.orders = new ArrayList<>();
     }
 
     public UUID getId() {
         return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -32,8 +37,8 @@ public class User {
         this.name = name;
     }
 
-    public ArrayList<Order> getOrders() {
-        return (ArrayList<Order>) orders;
+    public List<Order> getOrders() {
+        return orders;
     }
 
     public void addOrder(Order order) {
@@ -42,5 +47,9 @@ public class User {
 
     public void removeOrder(Order order) {
         orders.remove(order);
+    }
+
+    public void setOrders(List<Order> orders) {
+        this.orders = orders;
     }
 }
