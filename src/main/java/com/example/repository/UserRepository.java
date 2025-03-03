@@ -50,6 +50,7 @@ public class UserRepository extends MainRepository<User> {
         if (user == null) {
             return;
         }
+
         user.addOrder(order);
         save(user);
     }
