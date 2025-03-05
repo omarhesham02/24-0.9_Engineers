@@ -3,7 +3,6 @@ package com.example.controller;
 import com.example.model.Cart;
 import com.example.model.Product;
 import com.example.service.CartService;
-import com.example.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,7 +46,7 @@ public class CartController {
     public String deleteCartById(@PathVariable UUID cartId){
         cartService.deleteCartById(cartId);
         // Return a more suitable string
-        return "Product removed from cart successfully";
+        return "Cart deleted successfully";
     }
 
 }
