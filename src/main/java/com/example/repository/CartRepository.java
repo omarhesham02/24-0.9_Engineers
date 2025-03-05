@@ -25,15 +25,19 @@ public class CartRepository extends MainRepository<Cart> {
     }
 
     public Cart addCart(Cart cart){
-        return null;
+        save(cart);
+        return cart;
     }
 
     public ArrayList<Cart> getCarts(){
-        return null;
+        return findAll();
     }
 
     public Cart getCartById(UUID id){
-        return null;
+        return findAll().stream()
+                .filter(cart -> cart.getId().equals(id))
+                .findFirst()
+                .orElse(null);;
     }
 
     public Cart getCartByUserId(UUID userId){
