@@ -38,8 +38,9 @@ public class UserService extends MainService<User> {
     }
 
 
-    // TODO: Implement aaddOrderToUser(UUID userId, Order order) method
+    // TODO: Implement addOrderToUser(UUID userId, Order order) method
     public void addOrderToUser(UUID userId, Order order) {
+        userRepository.addOrderToUser(userId, order);
     }
 
     // TODO: Implement emptyCart(UUID userId) method
