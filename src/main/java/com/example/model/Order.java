@@ -12,7 +12,7 @@ public class Order {
     private UUID id;
     private UUID userId;
     private double totalPrice;
-    private List<Product> products=new ArrayList<>();
+    private List<Product> products = new ArrayList<>();
 
     public Order() {}
 

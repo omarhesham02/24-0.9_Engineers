@@ -37,10 +37,9 @@ public class UserService extends MainService<User> {
         return userRepository.getOrdersByUserId(userId);
     }
 
-
-    // TODO: Implement addOrderToUser(UUID userId, Order order) method
-    public void addOrderToUser(UUID userId, Order order) {
-        userRepository.addOrderToUser(userId, order);
+    //TODO: Implement addOrderToUser(UUID userId) method
+    public void addOrderToUser(UUID userId) {
+        // userRepository.addOrderToUser(userId, order);
     }
 
     // TODO: Implement emptyCart(UUID userId) method
