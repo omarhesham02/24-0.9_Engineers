@@ -1,6 +1,8 @@
 package com.example.service;
 
+import com.example.model.Cart;
 import com.example.model.Order;
+import com.example.model.Product;
 import com.example.model.User;
 import com.example.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,9 +40,14 @@ public class UserService extends MainService<User> {
     }
 
 
-    // TODO: Implement addOrderToUser(UUID userId, Order order) method
-    public void addOrderToUser(UUID userId, Order order) {
-        userRepository.addOrderToUser(userId, order);
+    // TODO: Implement addOrderToUser(UUID userId) method
+    public void addOrderToUser(UUID userId) {
+        User user = userRepository.getUserById(userId);
+        // draft
+//        Cart cart;
+//        Order order = new Order(userId,
+//                cart.getProducts().stream().mapToDouble(Product::getPrice).sum(),
+//                cart.getProducts());
     }
 
     // TODO: Implement emptyCart(UUID userId) method
