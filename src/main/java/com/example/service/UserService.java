@@ -40,7 +40,7 @@ public class UserService extends MainService<User> {
     }
 
 
-    // TODO: Implement addOrderToUser(UUID userId) method
+    //TODO: Implement addOrderToUser(UUID userId) method
     public void addOrderToUser(UUID userId) {
         User user = userRepository.getUserById(userId);
         // draft
@@ -48,6 +48,7 @@ public class UserService extends MainService<User> {
 //        Order order = new Order(userId,
 //                cart.getProducts().stream().mapToDouble(Product::getPrice).sum(),
 //                cart.getProducts());
+        // userRepository.addOrderToUser(userId, order);
     }
 
     // TODO: Implement emptyCart(UUID userId) method

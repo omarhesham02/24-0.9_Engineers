@@ -13,7 +13,9 @@ public class User {
     private String name;
     private List<Order> orders = new ArrayList<>();
 
-    public User() {}
+    public User() {
+
+    }
 
     public User(UUID userID, String name) {
         this.id = userID;
