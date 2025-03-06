@@ -27,7 +27,7 @@ public class CartService extends MainService<Cart> {
         return null;
     }
 
-    public void addProductToCart(UUID cartId, Product product){
+    public void addProductToCart(UUID cartId, Product product) {
 
     }
 

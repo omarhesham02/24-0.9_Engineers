@@ -2,7 +2,9 @@ package com.example.repository;
 
 import com.example.model.Order;
 import com.example.model.User;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,17 +39,20 @@ public class UserRepository extends MainRepository<User> {
         return user;
     }
 
-    public List<Order> getOrdersByUserId(UUID userId) {
+    public List<Order> getOrdersByUserId(UUID userId) throws HttpClientErrorException {
         User user = getUserById(userId);
+
         if (user == null) {
-            return null;
+            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
         }
+
         return user.getOrders();
     }
 
     public void addOrderToUser(UUID userId, Order order) {
         User user = getUserById(userId);
-        if (user == null) {
+
+        if (user == null || order == null) {
             return;
         }
 
@@ -56,20 +61,20 @@ public class UserRepository extends MainRepository<User> {
     }
 
     //TODO: Fix removeOrderFromUser method
-    public void removeOrderFromUser(UUID userId, UUID orderId) {
+    public void removeOrderFromUser(UUID userId, UUID orderId) throws HttpClientErrorException {
         User user = getUserById(userId);
-        if (user == null) {
-            return;
-        }
-      //  user.getOrders().removeIf(order -> order.getId().equals(orderId));
+        user.getOrders().removeIf(order -> order.getId().equals(orderId));
     }
 
-    public void deleteUser(UUID userId) throws Exception {
-        List<User> users = findAll();
-        boolean removed = users.removeIf(user -> user.getId().equals(userId));
-        if (!removed) {
-            throw new RuntimeException("User with ID " + userId + " not found");
+    public void deleteUser(UUID userId) throws HttpClientErrorException {
+
+        ArrayList<User> users = findAll();
+        users.removeIf(user -> user.getId().equals(userId));
+
+        if (users.size() == findAll().size()) {
+            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
         }
-        saveAll(new ArrayList<>(users));
+
+        saveAll(users);
     }
 }

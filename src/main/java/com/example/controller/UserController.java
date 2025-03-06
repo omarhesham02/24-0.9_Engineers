@@ -1,7 +1,11 @@
 package com.example.controller;
 
 import com.example.model.Order;
+import com.example.model.Product;
 import com.example.model.User;
+import com.example.repository.ProductRepository;
+import com.example.service.CartService;
+import com.example.service.ProductService;
 import com.example.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,9 +20,13 @@ import java.util.UUID;
 public class UserController {
 
     private final UserService userService;
+    private final CartService cartService;
+    private final ProductService productService;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, CartService cartService, ProductService productService) {
         this.userService = userService;
+        this.cartService = cartService;
+        this.productService = productService;
     }
 
     @PostMapping("/")
@@ -42,40 +50,46 @@ public class UserController {
     }
 
     @PostMapping("/{userId}/checkout")
-    public ResponseEntity<String> addOrderToUser(@PathVariable UUID userId) {
+    public String addOrderToUser(@PathVariable UUID userId) {
         try {
-           // userService.addOrderToUser(userId);
-            return ResponseEntity.ok("Order added successfully");
+           userService.addOrderToUser(userId);
+            return "Order added successfully";
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to add order");
+            return "Failed to add order";
         }
     }
 
     @PostMapping("/{userId}/removeOrder")
-    public ResponseEntity<String> removeOrderFromUser(@PathVariable UUID userId, @RequestParam UUID orderId) {
+    public String removeOrderFromUser(@PathVariable UUID userId, @RequestParam UUID orderId) {
         try {
             userService.removeOrderFromUser(userId, orderId);
-            return ResponseEntity.ok("Order removed successfully");
+            return "Order removed successfully";
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to remove order");
+            return "No such user or order found";
         }
     }
 
     //TODO: Implement emptyCart method for UserController
     @DeleteMapping("/{userId}/emptyCart")
-    public ResponseEntity<String> emptyCart(@PathVariable UUID userId) {
+    public String emptyCart(@PathVariable UUID userId) {
         try {
-            //userService.emptyCart(userId);
-            return ResponseEntity.ok("Cart emptied successfully");
+            userService.emptyCart(userId);
+            return "Cart emptied successfully";
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to empty cart");
+            return "Failed to empty cart";
         }
     }
 
     //TODO: Implement addProductToCart method for UserController
     @PutMapping("/addProductToCart")
     public String addProductToCart(@RequestParam UUID userId, @RequestParam UUID productId) {
-        return "Product added to cart";
+        try {
+            Product product = productService.getProductById(productId);
+            cartService.addProductToCart(userId, product);
+            return "Cart emptied successfully";
+        } catch (Exception e) {
+            return "Failed to empty cart";
+        }
     }
 
     //TODO: Implement deleteProductFromCart method for UserController
