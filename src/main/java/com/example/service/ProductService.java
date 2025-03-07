@@ -2,6 +2,7 @@ package com.example.service;
 
 import com.example.model.Product;
 import com.example.repository.ProductRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -10,15 +11,14 @@ import java.util.UUID;
 @Service
 @SuppressWarnings("rawtypes")
 public class ProductService extends MainService<Product> {
-
     private final ProductRepository productRepository;
 
+    @Autowired
     public ProductService(ProductRepository productRepository) {
         this.productRepository = productRepository;
     }
 
-
-    public Product addProduct(Product product){
+    public Product addProduct(Product product) {
         return productRepository.addProduct(product);
     }
 
@@ -34,9 +34,8 @@ public class ProductService extends MainService<Product> {
         return productRepository.updateProduct(productId, newName, newPrice);
     }
 
-    public String applyDiscount(double discount, ArrayList<UUID> productIds) {
-//        return productRepository.applyDiscount(discount, productIds);
-        return null;
+    public void applyDiscount(double discount, ArrayList<UUID> productIds) {
+        productRepository.applyDiscount(discount, productIds);
     }
 
     public void deleteProductById(UUID productId) {
