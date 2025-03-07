@@ -4,6 +4,7 @@ import com.example.model.Cart;
 import com.example.model.Order;
 import com.example.model.Product;
 import com.example.model.User;
+import com.example.repository.CartRepository;
 import com.example.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,10 +17,12 @@ import java.util.UUID;
 public class UserService extends MainService<User> {
 
     private final UserRepository userRepository;
+    private final CartRepository cartRepository;
 
     @Autowired
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, CartRepository cartRepository) {
         this.userRepository = userRepository;
+        this.cartRepository = cartRepository;
     }
 
     public User addUser(User user) {
@@ -40,26 +43,33 @@ public class UserService extends MainService<User> {
     }
 
 
-    //TODO: Implement addOrderToUser(UUID userId) method
+    // TODO: Check addOrderToUser(UUID userId) method
     public void addOrderToUser(UUID userId) {
         User user = userRepository.getUserById(userId);
         // draft
-//        Cart cart;
-//        Order order = new Order(userId,
-//                cart.getProducts().stream().mapToDouble(Product::getPrice).sum(),
-//                cart.getProducts());
-        // userRepository.addOrderToUser(userId, order);
+        Cart cart = cartRepository.getCartByUserId(userId);
+        Order order = new Order(userId,
+                cart.getProducts().stream().mapToDouble(Product::getPrice).sum(),
+                cart.getProducts());
+
+        emptyCart(userId);
+        userRepository.addOrderToUser(userId, order);
     }
 
-    // TODO: Implement emptyCart(UUID userId) method
+    // TODO: Check emptyCart(UUID userId) method
     public void emptyCart(UUID userId) {
+        Cart cart = cartRepository.getCartByUserId(userId);
+        for (Product product : cart.getProducts())
+            cartRepository.deleteProductFromCart(cart.getId(), product);
     }
 
     public void removeOrderFromUser(UUID userId, UUID orderId) {
         userRepository.removeOrderFromUser(userId, orderId);
     }
 
-    public void deleteUserById(UUID userId) throws Exception {
+    public void deleteUserById(UUID userId) {
         userRepository.deleteUser(userId);
+        Cart cart = cartRepository.getCartByUserId(userId);
+        cartRepository.deleteCartById(cart.getId());
     }
 }

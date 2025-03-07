@@ -1,8 +1,10 @@
 package com.example.MiniProject1;
 
+import com.example.model.Cart;
 import com.example.model.Order;
 import com.example.model.Product;
 import com.example.model.User;
+import com.example.service.CartService;
 import com.example.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,9 @@ class UserServiceTest {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private CartService cartService;
+
 
     @Test
     void addUser_withValidInput_shouldReturnSameUserData() {
@@ -39,7 +44,7 @@ class UserServiceTest {
     @Test
     void addUser_withDuplicateId_shouldThrowException() {
         // Arrange
-        User user = new User(UUID.randomUUID(), "Mo Tammaa");
+        User user = new User(UUID.randomUUID(), "Mo Tammaa2");
 
         // Act
         userService.addUser(user);
@@ -71,7 +76,7 @@ class UserServiceTest {
     @Test
     void getUsers_withMultipleUsers_shouldReturnAllUsers() {
         // Arrange
-        User user1 = new User(UUID.randomUUID(), "Mo Tammaa");
+        User user1 = new User(UUID.randomUUID(), "Mo Tammaa3");
         User user2 = new User(UUID.randomUUID(), "Omar Adel");
         userService.addUser(user1);
         userService.addUser(user2);
@@ -106,7 +111,7 @@ class UserServiceTest {
     void getUserById_withValidId_shouldReturnCorrectUser() {
         // Arrange
         User user = new User(UUID.randomUUID(), "Omar Hesham");
-        User anotherUser = new User(UUID.randomUUID(), "Omar Adel");
+        User anotherUser = new User(UUID.randomUUID(), "Omar Adel2");
         userService.addUser(user);
         userService.addUser(anotherUser);
 
@@ -120,7 +125,7 @@ class UserServiceTest {
     @Test
     void getUserById_withInvalidId_shouldReturnNull() {
         // Arrange
-        User user = new User(UUID.randomUUID(), "Mo Tammaa");
+        User user = new User(UUID.randomUUID(), "Mo Tammaa4");
         userService.addUser(user);
 
         // Act
@@ -133,140 +138,77 @@ class UserServiceTest {
     @Test
     void getUserById_withNullId_shouldThrowException() {
         // Arrange
-        User user = new User(UUID.randomUUID(), "Mo Tammaa");
+        User user = new User(UUID.randomUUID(), "Mo Tammaa5");
         userService.addUser(user);
 
         // Act & Assert
         assertThrows(Exception.class, () -> userService.getUserById(null));
     }
 
-//    @Test
-//    void getOrdersByUserId_withValidUserIdAndOrder_shouldReturnUserOrders() {
-//        // Arrange
-//        User user = new User(UUID.randomUUID(), "Mo Tammaa"),
-//                anotherUser = new User(UUID.randomUUID(), "Omar Adel");
-//
-//        ArrayList<Product> products = new ArrayList<>(List.of(
-//                new Product("Hohoz", 10),
-//                new Product("Shokalata Corona Dark bel bondoq", 50),
-//                new Product("V_Cola 3shan Pepsi moqat3a", 15))
-//        );
-//        ArrayList<Product> products1 = new ArrayList<>(List.of(new Product("Hohoz", 10)));
-//        ArrayList<Product> products2 = products.stream().filter(product -> !product.getName().equals("V_Cola 3shan Pepsi")).collect(Collectors.toCollection(ArrayList::new));
-//
-//        Order order = new Order(user.getId(),
-//                products.stream().mapToDouble(Product::getPrice).sum(),
-//                products),
-//            order1 = new Order(user.getId(),
-//                products1.stream().mapToDouble(Product::getPrice).sum(),
-//                products1),
-//            order2 = new Order(user.getId(),
-//                        products2.stream().mapToDouble(Product::getPrice).sum(),
-//                        products2);
-//
-//        userService.addUser(user);
-//        userService.addUser(anotherUser);
-//        userService.addOrderToUser(user.getId(), order);
-//        userService.addOrderToUser(user.getId(), order1);
-//
-//        userService.addOrderToUser(user.getId(), order2);
-//
-//        // Act
-//        List<Order> result = userService.getOrdersByUserId(user.getId());
-//
-//        // Assert
-//        assertEquals(2, result.size());
-//        assertTrue(result.contains(order));
-//        assertTrue(result.contains(order1));
-//        assertFalse(result.contains(order2));
-//    }
-//
-//    @Test
-//    void getOrdersByUserId_withInvalidUserId_shouldReturnEmptyList() {
-//        // Arrange
-//        User user = new User(UUID.randomUUID(), "Mo Tammaa");
-//        ArrayList<Product> products = new ArrayList<>(List.of(
-//                new Product("Hohoz", 10),
-//                new Product("Shokalata Corona Dark bel bondoq", 50),
-//                new Product("V_Cola 3shan Pepsi moqat3a", 15))
-//        );
-//
-//        Order order1 = new Order(user.getId(),
-//                products.stream().mapToDouble(Product::getPrice).sum(),
-//                products);
-//        userService.addUser(user);
-//        userService.addOrderToUser(user.getId(), order1);
-//
-//        // Act
-//        List<Order> result = userService.getOrdersByUserId(UUID.randomUUID());
-//
-//        // Assert
-//        assertEquals(0, result.size());
-//    }
-//
-//    @Test
-//    void getOrdersByUserId_userWithNoOrders_shouldReturnEmptyList() {
-//        // Arrange
-//        User user = new User(UUID.randomUUID(), "Mo Tammaa");
-//        userService.addUser(user);
-//
-//        // Act
-//        List<Order> result = userService.getOrdersByUserId(user.getId());
-//
-//        // Assert
-//        assertEquals(0, result.size());
-//        assertNotNull(result);
-//    }
-//
-//
-//    void getOrdersByUserId_ShouldReturnOrders_WhenUserHasOrders() {
-//        // Arrange
-//        UUID testUserId = UUID.randomUUID();
-//        ArrayList<Order> orders = new ArrayList<>();
-//        orders.add(new Order(UUID.randomUUID(), 100.0, new ArrayList<>()));
-//        orders.add(new Order(UUID.randomUUID(), 200.0, new ArrayList<>()));
-//        orders.add(new Order(UUID.randomUUID(), 300.0, new ArrayList<>()));
-//        when(userRepository.getOrdersByUserId(testUserId)).thenReturn(orders);
-//
-//        // Act
-//        List<Order> result = userService.getOrdersByUserId(testUserId);
-//
-//        // Assert
-//        assertNotNull(result);
-//        assertEquals(3, result.size());
-//        verify(userRepository, times(1)).getOrdersByUserId(testUserId);
-//    }
-//
-//    @Test
-//    void getOrdersByUserId_ShouldReturnEmptyList_WhenUserHasNoOrders() {
-//        // Arrange
-//        UUID testUserId = UUID.randomUUID();
-//        ArrayList<Order> orders = new ArrayList<>();
-//        when(userRepository.getOrdersByUserId(testUserId)).thenReturn(orders);
-//
-//        // Act
-//        List<Order> result = userService.getOrdersByUserId(testUserId);
-//
-//        // Assert
-//        assertNotNull(result);
-//        assertEquals(0, result.size());
-//        verify(userRepository, times(1)).getOrdersByUserId(testUserId);
-//    }
-//
-//    @Test
-//    void getOrdersByUserId_ShouldReturnNull_WhenUserDoesNotExist() {
-//        // Arrange
-//        UUID testUserId = UUID.randomUUID();
-//        when(userRepository.getOrdersByUserId(testUserId)).thenReturn(null);
-//
-//        // Act
-//        List<Order> result = userService.getOrdersByUserId(testUserId);
-//
-//        // Assert
-//        assertNull(result);
-//        verify(userRepository, times(1)).getOrdersByUserId(testUserId);
-//    }
-//
+    @Test
+    void getOrdersByUserId_withValidUserIdAndOrder_shouldReturnUserOrders() {
+        // Arrange
+        User user = new User(UUID.randomUUID(), "Mo Tammaa6"),
+                anotherUser = new User(UUID.randomUUID(), "Omar Adel3");
+
+        ArrayList<Product> products = new ArrayList<>(List.of(
+                new Product("Hohoz", 10),
+                new Product("Shokalata Corona Dark bel bondoq", 50),
+                new Product("V_Cola 3shan Pepsi moqat3a", 15))
+        );
+        ArrayList<Product> products1 = new ArrayList<>(List.of(new Product("Hohoz", 10)));
+
+        Cart cart = cartService.getCartByUserId(user.getId()),
+                cart1 = cartService.getCartByUserId(anotherUser.getId());
+
+
+        for (Product product : products)    cartService.addProductToCart(cart.getId(), product);
+        for (Product product : products1) cartService.addProductToCart(cart1.getId(), product);
+
+
+        // Act
+        List<Order> result = userService.getOrdersByUserId(user.getId());
+
+        // Assert
+        assertEquals(1, result.size());
+        assertEquals(products.stream().mapToDouble(Product::getPrice).sum(), result.getFirst().getTotalPrice());
+        assertEquals(products, result.getFirst().getProducts());
+    }
+
+    @Test
+    void getOrdersByUserId_withInvalidUserId_shouldReturnEmptyList() {
+        // Arrange
+        User user = new User(UUID.randomUUID(), "Mo Tammaa7");
+        ArrayList<Product> products = new ArrayList<>(List.of(
+                new Product("Hohoz", 10),
+                new Product("Shokalata Corona Dark bel bondoq", 50),
+                new Product("V_Cola 3shan Pepsi moqat3a", 15))
+        );
+
+        Cart cart = cartService.getCartByUserId(user.getId());
+        for (Product product : products) cartService.addProductToCart(cart.getId(), product);
+
+        // Act
+        List<Order> result = userService.getOrdersByUserId(UUID.randomUUID());
+
+        // Assert
+        assertEquals(0, result.size());
+    }
+
+    @Test
+    void getOrdersByUserId_userWithNoOrders_shouldReturnEmptyList() {
+        // Arrange
+        User user = new User(UUID.randomUUID(), "Mo Tammaa8");
+        userService.addUser(user);
+
+        // Act
+        List<Order> result = userService.getOrdersByUserId(user.getId());
+
+        // Assert
+        assertEquals(0, result.size());
+        assertNotNull(result);
+    }
+
 //    @Test
 //    void addOrderToUser_ShouldAddOrder_WhenUserExists() {
 //        // Arrange
