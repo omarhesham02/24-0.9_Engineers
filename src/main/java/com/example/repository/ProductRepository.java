@@ -20,7 +20,9 @@ public class ProductRepository extends MainRepository<Product> {
     }
 
     public Product addProduct(Product product) {
-        product.setId(UUID.fromString(UUID.randomUUID().toString()));
+        if (product.getId() == null) {
+            product.setId(UUID.fromString(UUID.randomUUID().toString()));
+        }
         save(product);
         return product;
     }

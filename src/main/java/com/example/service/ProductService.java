@@ -22,6 +22,7 @@ public class ProductService extends MainService<Product> {
         return productRepository.addProduct(product);
     }
 
+
     public ArrayList<Product> getProducts() {
         return productRepository.getProducts();
     }

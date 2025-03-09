@@ -265,7 +265,7 @@
  		overRideAll();
  	}
 
-// 	// ------------------------ User Tests -------------------------
+ 	// ------------------------ User Tests -------------------------
 
 
 
@@ -475,126 +475,126 @@
  				.andExpect(MockMvcResultMatchers.content().string("User not found"));
  	}
 
-//
-// 	// ------------------------ Product Tests -------------------------
-//
-//
-// 	@Test
-// 	void testAddProductEndPoint() throws JsonProcessingException, Exception{
-//
-// 		Product testProduct3=new Product();
-// 		testProduct3.setId(UUID.randomUUID());
-// 		testProduct3.setName("Test Product");
-// 		testProduct3.setPrice(10.0);
-//
-//
-//
-//
-// 		mockMvc.perform(MockMvcRequestBuilders.post("/product/")
-// 				.contentType(MediaType.APPLICATION_JSON)
-// 				.content(objectMapper.writeValueAsString(testProduct3)))
-// 				.andExpect(MockMvcResultMatchers.status().isOk());
-//
-// 		boolean found=false;
-//
-// 		for(Product product: getProducts()){
-// 			if(product.getId().equals(testProduct3.getId()) && product.getName().equals(testProduct3.getName()) && product.getPrice()==testProduct3.getPrice()){
-// 				found=true;
-// 				break;
-// 			}
-// 		}
-// 		assertTrue(found,"Product should be added correctly");
-// 	}
-//
-//
-//
-// 	@Test
-// 	void testGetProductsEndPoint() throws Exception{
-// 		Product testProduct6=new Product();
-// 		testProduct6.setId(UUID.randomUUID());
-// 		testProduct6.setName("Test Product");
-// 		testProduct6.setPrice(10.0);
-// 		addProduct(testProduct6);
-//
-// 		MvcResult result= mockMvc.perform(MockMvcRequestBuilders.get("/product/")
-// 				.contentType(MediaType.APPLICATION_JSON))
-// 				.andExpect(MockMvcResultMatchers.status().isOk())
-// 				.andReturn();
-// 		String responseContent = result.getResponse().getContentAsString();
-// 		List<Product> responseProducts = objectMapper.readValue(responseContent, new TypeReference<List<Product>>() {});
-//
-// 		assertEquals(getProducts().size(), responseProducts.size(), "Products should be returned correctly From Endpoint");
-// 	}
-//
-//
-// 	@Test
-// 	void testGetProductByIdEndPoint() throws Exception{
-// 		Product testProduct9=new Product();
-// 		testProduct9.setId(UUID.randomUUID());
-// 		testProduct9.setName("Test Product");
-// 		testProduct9.setPrice(10.0);
-// 		addProduct(testProduct9);
-//
-// 		mockMvc.perform(MockMvcRequestBuilders.get("/product/{productId}", testProduct9.getId()))
-// 				.andExpect(MockMvcResultMatchers.status().isOk())
-// 				.andExpect(MockMvcResultMatchers.content().json(objectMapper.writeValueAsString(testProduct9)));
-// 	}
-//
-//
-// 	@Test
-// 	void testUpdateProductEndPoint() throws Exception{
-// 		Product testProduct12=new Product();
-// 		testProduct12.setId(UUID.randomUUID());
-// 		testProduct12.setName("Test Product");
-// 		testProduct12.setPrice(10.0);
-// 		addProduct(testProduct12);
-// 		Map<String,Object> body=new HashMap<>();
-// 		body.put("newName", "UpdatedName");
-// 		body.put("newPrice", 20.0);
-// 		MvcResult result= mockMvc.perform(MockMvcRequestBuilders.put("/product/update/{id}", testProduct12.getId())
-// 				.contentType(MediaType.APPLICATION_JSON)
-// 				.content(objectMapper.writeValueAsString(body)))
-// 				.andExpect(MockMvcResultMatchers.status().isOk())
-// 				.andReturn();
-// 		String responseContent = result.getResponse().getContentAsString();
-// 		Product updatedProduct = objectMapper.readValue(responseContent, Product.class);
-// 		assertEquals(updatedProduct.getId(),testProduct12.getId(),"Product should be updated correctly");
-// 		assertEquals(updatedProduct.getName(),"UpdatedName","Product name should be updated correctly");
-// 		assertEquals(updatedProduct.getPrice(),20.0,"Product price should be updated correctly");
-// 	}
-//
-//
-// 	@Test
-// 	void testApplyDiscountEndPoint() throws Exception{
-// 		Product testProduct15=new Product();
-// 		testProduct15.setId(UUID.randomUUID());
-// 		testProduct15.setName("Test Product");
-// 		testProduct15.setPrice(10.0);
-// 		addProduct(testProduct15);
-// 		ArrayList<UUID> productIds=new ArrayList<>();
-// 		productIds.add(testProduct15.getId());
-// 		mockMvc.perform(MockMvcRequestBuilders.put("/product/applyDiscount")
-// 				.contentType(MediaType.APPLICATION_JSON)
-// 				.param("discount", "10.0")
-// 				.content(objectMapper.writeValueAsString(productIds)))
-// 				.andExpect(MockMvcResultMatchers.status().isOk())
-// 				.andExpect(MockMvcResultMatchers.content().string("Discount applied successfully"));
-// 		assertEquals(9.0, ((Product)find("Product", testProduct15)).getPrice(),"Product should be updated correctly");
-// 	}
-//
-//
-// 	@Test
-// 	void testDeleteProductByIdEndPoint1() throws Exception{
-// 		Product testProduct15=new Product();
-// 		testProduct15.setId(UUID.randomUUID());
-// 		testProduct15.setName("Test Product");
-// 		testProduct15.setPrice(10.0);
-// 		addProduct(testProduct15);
-// 		mockMvc.perform(MockMvcRequestBuilders.delete("/product/delete/{id}", testProduct15.getId()))
-// 				.andExpect(MockMvcResultMatchers.status().isOk())
-// 				.andExpect(MockMvcResultMatchers.content().string("Product deleted successfully"));
-// 	}
-//
+
+ 	// ------------------------ Product Tests -------------------------
+
+
+ 	@Test
+ 	void testAddProductEndPoint() throws JsonProcessingException, Exception{
+
+ 		Product testProduct3=new Product();
+ 		testProduct3.setId(UUID.randomUUID());
+ 		testProduct3.setName("Test Product");
+ 		testProduct3.setPrice(10.0);
+
+
+
+
+ 		mockMvc.perform(MockMvcRequestBuilders.post("/product/")
+ 				.contentType(MediaType.APPLICATION_JSON)
+ 				.content(objectMapper.writeValueAsString(testProduct3)))
+ 				.andExpect(MockMvcResultMatchers.status().isOk());
+
+ 		boolean found=false;
+
+ 		for(Product product: getProducts()){
+ 			if(product.getId().equals(testProduct3.getId()) && product.getName().equals(testProduct3.getName()) && product.getPrice()==testProduct3.getPrice()){
+ 				found=true;
+ 				break;
+ 			}
+ 		}
+ 		assertTrue(found,"Product should be added correctly");
+ 	}
+
+
+
+ 	@Test
+ 	void testGetProductsEndPoint() throws Exception{
+ 		Product testProduct6=new Product();
+ 		testProduct6.setId(UUID.randomUUID());
+ 		testProduct6.setName("Test Product");
+ 		testProduct6.setPrice(10.0);
+ 		addProduct(testProduct6);
+
+ 		MvcResult result= mockMvc.perform(MockMvcRequestBuilders.get("/product/")
+ 				.contentType(MediaType.APPLICATION_JSON))
+ 				.andExpect(MockMvcResultMatchers.status().isOk())
+ 				.andReturn();
+ 		String responseContent = result.getResponse().getContentAsString();
+ 		List<Product> responseProducts = objectMapper.readValue(responseContent, new TypeReference<List<Product>>() {});
+
+ 		assertEquals(getProducts().size(), responseProducts.size(), "Products should be returned correctly From Endpoint");
+ 	}
+
+
+ 	@Test
+ 	void testGetProductByIdEndPoint() throws Exception{
+ 		Product testProduct9=new Product();
+ 		testProduct9.setId(UUID.randomUUID());
+ 		testProduct9.setName("Test Product");
+ 		testProduct9.setPrice(10.0);
+ 		addProduct(testProduct9);
+
+ 		mockMvc.perform(MockMvcRequestBuilders.get("/product/{productId}", testProduct9.getId()))
+ 				.andExpect(MockMvcResultMatchers.status().isOk())
+ 				.andExpect(MockMvcResultMatchers.content().json(objectMapper.writeValueAsString(testProduct9)));
+ 	}
+
+
+ 	@Test
+ 	void testUpdateProductEndPoint() throws Exception{
+ 		Product testProduct12=new Product();
+ 		testProduct12.setId(UUID.randomUUID());
+ 		testProduct12.setName("Test Product");
+ 		testProduct12.setPrice(10.0);
+ 		addProduct(testProduct12);
+ 		Map<String,Object> body=new HashMap<>();
+ 		body.put("newName", "UpdatedName");
+ 		body.put("newPrice", 20.0);
+ 		MvcResult result= mockMvc.perform(MockMvcRequestBuilders.put("/product/update/{id}", testProduct12.getId())
+ 				.contentType(MediaType.APPLICATION_JSON)
+ 				.content(objectMapper.writeValueAsString(body)))
+ 				.andExpect(MockMvcResultMatchers.status().isOk())
+ 				.andReturn();
+ 		String responseContent = result.getResponse().getContentAsString();
+ 		Product updatedProduct = objectMapper.readValue(responseContent, Product.class);
+ 		assertEquals(updatedProduct.getId(),testProduct12.getId(),"Product should be updated correctly");
+ 		assertEquals(updatedProduct.getName(),"UpdatedName","Product name should be updated correctly");
+ 		assertEquals(updatedProduct.getPrice(),20.0,"Product price should be updated correctly");
+ 	}
+
+
+ 	@Test
+ 	void testApplyDiscountEndPoint() throws Exception{
+ 		Product testProduct15=new Product();
+ 		testProduct15.setId(UUID.randomUUID());
+ 		testProduct15.setName("Test Product");
+ 		testProduct15.setPrice(10.0);
+ 		addProduct(testProduct15);
+ 		ArrayList<UUID> productIds=new ArrayList<>();
+ 		productIds.add(testProduct15.getId());
+ 		mockMvc.perform(MockMvcRequestBuilders.put("/product/applyDiscount")
+ 				.contentType(MediaType.APPLICATION_JSON)
+ 				.param("discount", "10.0")
+ 				.content(objectMapper.writeValueAsString(productIds)))
+ 				.andExpect(MockMvcResultMatchers.status().isOk())
+ 				.andExpect(MockMvcResultMatchers.content().string("Discount applied successfully"));
+ 		assertEquals(9.0, ((Product)find("Product", testProduct15)).getPrice(),"Product should be updated correctly");
+ 	}
+
+
+ 	@Test
+ 	void testDeleteProductByIdEndPoint1() throws Exception{
+ 		Product testProduct15=new Product();
+ 		testProduct15.setId(UUID.randomUUID());
+ 		testProduct15.setName("Test Product");
+ 		testProduct15.setPrice(10.0);
+ 		addProduct(testProduct15);
+ 		mockMvc.perform(MockMvcRequestBuilders.delete("/product/delete/{id}", testProduct15.getId()))
+ 				.andExpect(MockMvcResultMatchers.status().isOk())
+ 				.andExpect(MockMvcResultMatchers.content().string("Product deleted successfully"));
+ 	}
+
 // 	// --------------------------------- Cart Tests -------------------------
 //
 //
