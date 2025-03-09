@@ -203,8 +203,11 @@ class UserServiceTest {
         UUID testUserId = UUID.randomUUID();
         when(userRepository.getUserById(testUserId)).thenReturn(null);
 
-        // Act & Assert
-        assertThrows(HttpClientErrorException.class, () -> userService.getOrdersByUserId(testUserId));
+        // Act
+        List<Order> result = userService.getOrdersByUserId(testUserId);
+
+        // Assert
+        assertNull(result);
         verify(userRepository, times(1)).getUserById(testUserId);
         verify(userRepository, times(0)).getOrdersByUserId(testUserId);
     }

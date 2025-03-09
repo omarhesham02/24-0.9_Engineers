@@ -51,7 +51,7 @@ public class UserService extends MainService<User> {
         User user = userRepository.getUserById(userId);
 
         if (user == null) {
-            throw new HttpClientErrorException(HttpStatus.NOT_FOUND, "User not found");
+            return null;
         }
 
         return userRepository.getOrdersByUserId(userId);
