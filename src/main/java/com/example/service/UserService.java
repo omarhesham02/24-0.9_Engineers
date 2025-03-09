@@ -1,7 +1,10 @@
 package com.example.service;
 
+import com.example.model.Cart;
 import com.example.model.Order;
+import com.example.model.Product;
 import com.example.model.User;
+import com.example.repository.CartRepository;
 import com.example.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,12 +19,12 @@ import java.util.UUID;
 public class UserService extends MainService<User> {
 
     private final UserRepository userRepository;
-    private final CartService cartService;
+    private final CartRepository cartRepository;
 
     @Autowired
-    public UserService(UserRepository userRepository, CartService cartService) {
+    public UserService(UserRepository userRepository, CartRepository cartRepository) {
         this.userRepository = userRepository;
-        this.cartService = cartService;
+        this.cartRepository = cartRepository;
     }
 
     public User addUser(User user) {
@@ -57,18 +60,30 @@ public class UserService extends MainService<User> {
         return userRepository.getOrdersByUserId(userId);
     }
 
+
+    // TODO: Check addOrderToUser(UUID userId) method
     public void addOrderToUser(UUID userId) {
-        if (userId == null) {
+        if (userId == null)
             throw new IllegalArgumentException("User ID cannot be null");
-        }
-        // userRepository.addOrderToUser(userId, order);
+
+        Cart cart = cartRepository.getCartByUserId(userId);
+        Order order = new Order(userId,
+                cart.getProducts().stream().mapToDouble(Product::getPrice).sum(),
+                cart.getProducts());
+
+        emptyCart(userId);
+        userRepository.addOrderToUser(userId, order);
     }
 
+    // TODO: Check emptyCart(UUID userId) method
     public void emptyCart(UUID userId) {
         if (userId == null) {
             throw new IllegalArgumentException("User ID cannot be null");
         }
-        cartService.deleteCartById(userId);
+
+        Cart cart = cartRepository.getCartByUserId(userId);
+        for (Product product : cart.getProducts())
+            cartRepository.deleteProductFromCart(cart.getId(), product);
     }
 
     // TODO: Why is .getOrderById not finding the order?!
@@ -107,5 +122,7 @@ public class UserService extends MainService<User> {
             throw new HttpClientErrorException(HttpStatus.NOT_FOUND, "User not found");
         }
         userRepository.deleteUser(userId);
+        Cart cart = cartRepository.getCartByUserId(userId);
+        cartRepository.deleteCartById(cart.getId());
     }
 }
