@@ -61,6 +61,13 @@ public class User {
         return orders;
     }
 
+    public Order getOrderById(UUID orderId) {
+        return orders.stream()
+                .filter(order -> order.getId().equals(orderId))
+                .findFirst()
+                .orElse(null);
+    }
+
     public void addOrder(Order order) {
         orders.add(order);
     }

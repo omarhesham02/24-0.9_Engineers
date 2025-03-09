@@ -7,7 +7,9 @@ import com.example.model.User;
 import com.example.repository.CartRepository;
 import com.example.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +28,9 @@ public class UserService extends MainService<User> {
     }
 
     public User addUser(User user) {
+        if (user == null) {
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "User cannot be null");
+        }
         userRepository.addUser(user);
         return user;
     }
@@ -35,18 +40,32 @@ public class UserService extends MainService<User> {
     }
 
     public User getUserById(UUID id) {
+        if (id == null) {
+            throw new IllegalArgumentException("User ID cannot be null");
+        }
         return userRepository.getUserById(id);
     }
 
     public List<Order> getOrdersByUserId(UUID userId) {
+        if (userId == null) {
+            throw new IllegalArgumentException("User ID cannot be null");
+        }
+
+        User user = userRepository.getUserById(userId);
+
+        if (user == null) {
+            return null;
+        }
+
         return userRepository.getOrdersByUserId(userId);
     }
 
 
     // TODO: Check addOrderToUser(UUID userId) method
     public void addOrderToUser(UUID userId) {
-        User user = userRepository.getUserById(userId);
-        // draft
+        if (userId == null)
+            throw new IllegalArgumentException("User ID cannot be null");
+
         Cart cart = cartRepository.getCartByUserId(userId);
         Order order = new Order(userId,
                 cart.getProducts().stream().mapToDouble(Product::getPrice).sum(),
@@ -58,16 +77,50 @@ public class UserService extends MainService<User> {
 
     // TODO: Check emptyCart(UUID userId) method
     public void emptyCart(UUID userId) {
+        if (userId == null) {
+            throw new IllegalArgumentException("User ID cannot be null");
+        }
+
         Cart cart = cartRepository.getCartByUserId(userId);
         for (Product product : cart.getProducts())
             cartRepository.deleteProductFromCart(cart.getId(), product);
     }
 
+    // TODO: Why is .getOrderById not finding the order?!
     public void removeOrderFromUser(UUID userId, UUID orderId) {
+
+        if (userId == null) {
+            throw new IllegalArgumentException("User ID cannot be null");
+        }
+
+        if (orderId == null) {
+            throw new IllegalArgumentException("Order ID cannot be null");
+        }
+
+        User user = userRepository.getUserById(userId);
+        Order order = userRepository.getOrderById(userId, orderId);
+
+        if (user == null) {
+            throw new HttpClientErrorException(HttpStatus.NOT_FOUND, "User not found");
+        }
+
+        if (order == null) {
+            throw new HttpClientErrorException(HttpStatus.NOT_FOUND, "Order not found");
+        }
+
         userRepository.removeOrderFromUser(userId, orderId);
     }
 
     public void deleteUserById(UUID userId) {
+        if (userId == null) {
+            throw new IllegalArgumentException("User ID cannot be null");
+        }
+
+        User user = userRepository.getUserById(userId);
+
+        if (user == null) {
+            throw new HttpClientErrorException(HttpStatus.NOT_FOUND, "User not found");
+        }
         userRepository.deleteUser(userId);
         Cart cart = cartRepository.getCartByUserId(userId);
         cartRepository.deleteCartById(cart.getId());
