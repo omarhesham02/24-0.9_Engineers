@@ -2,7 +2,7 @@ package com.example.repository;
 
 import com.example.model.Order;
 import com.example.model.User;
-import org.springframework.http.HttpStatus;
+import com.example.service.CartService;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.client.HttpClientErrorException;
 
@@ -12,6 +12,12 @@ import java.util.UUID;
 
 @Repository
 public class UserRepository extends MainRepository<User> {
+
+    private final CartService cartService;
+
+    public UserRepository(CartService cartService) {
+        this.cartService = cartService;
+    }
 
     @Override
     protected String getDataPath() {
@@ -41,40 +47,36 @@ public class UserRepository extends MainRepository<User> {
 
     public List<Order> getOrdersByUserId(UUID userId) throws HttpClientErrorException {
         User user = getUserById(userId);
-
-        if (user == null) {
-            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
-        }
-
         return user.getOrders();
     }
 
     public void addOrderToUser(UUID userId, Order order) {
         User user = getUserById(userId);
-
-        if (user == null || order == null) {
-            return;
-        }
-
         user.addOrder(order);
         save(user);
+    }
+
+    public void emptyCart(UUID testUserId) {
+        cartService.deleteCartById(testUserId);
     }
 
     //TODO: Fix removeOrderFromUser method
     public void removeOrderFromUser(UUID userId, UUID orderId) throws HttpClientErrorException {
         User user = getUserById(userId);
-        user.getOrders().removeIf(order -> order.getId().equals(orderId));
+        Order order = user.getOrderById(orderId);
+        user.removeOrder(order);
+        save(user);
     }
 
     public void deleteUser(UUID userId) throws HttpClientErrorException {
-
         ArrayList<User> users = findAll();
         users.removeIf(user -> user.getId().equals(userId));
-
-        if (users.size() == findAll().size()) {
-            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
-        }
-
         saveAll(users);
+    }
+
+
+    public Order getOrderById(UUID userId, UUID orderId) {
+        User user = getUserById(userId);
+        return user.getOrderById(orderId);
     }
 }
