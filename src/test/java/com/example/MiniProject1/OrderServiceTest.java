@@ -19,7 +19,6 @@ class OrderServiceTest {
     @Autowired
     private OrderService orderService;
 
-
     // before each test, we need to clear the files
     @BeforeEach
     void setUp() {
@@ -106,6 +105,78 @@ class OrderServiceTest {
 
         // Assert
         assertTrue(orders.isEmpty());
+    }
+
+
+    @Test
+    void getOrderById_validOrderId_shouldReturnOrder() {
+        // Arrange
+        User user = new User("Mohamed Tammaa");
+        Order order = new Order(UUID.randomUUID(), user.getId(), 100.0, new ArrayList<>());
+        orderService.addOrder(order);
+
+        // Act
+        Order retrievedOrder = orderService.getOrderById(order.getId());
+
+        // Assert
+        assertNotNull(retrievedOrder);
+        assertEquals(order.getId(), retrievedOrder.getId());
+        assertEquals(order.getUserId(), retrievedOrder.getUserId());
+    }
+
+    @Test
+    void getOrderById_nonExistingOrderId_shouldReturnNull() {
+        // Arrange
+        UUID orderId = UUID.randomUUID();
+
+        // Act
+        Order retrievedOrder = orderService.getOrderById(orderId);
+
+        // Assert
+        assertNull(retrievedOrder);
+    }
+
+    @Test
+    void getOrderById_nullOrderId_shouldThrowException() {
+        // Arrange
+        UUID orderId = null;
+
+        // Act & Assert
+        //noinspection ConstantValue
+        assertThrows(IllegalArgumentException.class, () -> orderService.getOrderById(orderId));
+    }
+
+    @Test
+    void deleteOrderById_validOrderId_shouldDeleteOrder() {
+        // Arrange
+        User user = new User("Mohamed Tammaa");
+        Order order = new Order(UUID.randomUUID(), user.getId(), 100.0, new ArrayList<>());
+        orderService.addOrder(order);
+
+        // Act
+        orderService.deleteOrderById(order.getId());
+
+        // Assert
+        assertNull(orderService.getOrderById(order.getId()));
+    }
+
+    @Test
+    void deleteOrderById_nonExistingOrderId_shouldThrowException() {
+        // Arrange
+        UUID orderId = UUID.randomUUID();
+
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class, () -> orderService.deleteOrderById(orderId));
+    }
+
+    @Test
+    void deleteOrderById_nullOrderId_shouldThrowException() {
+        // Arrange
+        UUID orderId = null;
+
+        // Act & Assert
+        //noinspection ConstantValue
+        assertThrows(IllegalArgumentException.class, () -> orderService.deleteOrderById(orderId));
     }
 
 }
