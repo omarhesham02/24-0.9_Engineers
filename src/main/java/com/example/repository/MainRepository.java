@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import interfaces.Identifiable;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
@@ -12,7 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Primary
 @Repository
-public abstract class MainRepository<T> {
+public abstract class MainRepository<T extends Identifiable> {
 
     protected ObjectMapper objectMapper = new ObjectMapper();
     
@@ -50,6 +51,12 @@ public abstract class MainRepository<T> {
         saveAll(allData);
     }
 
+    public void override(T data) {
+        ArrayList<T> allData = findAll();
+        allData.removeIf(existingData -> existingData.getId().equals(data.getId()));
+        allData.add(data);
+        saveAll(allData);
+    }
 
 
     public void overrideData(ArrayList<T> data) {
