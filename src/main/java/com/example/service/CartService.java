@@ -2,14 +2,11 @@ package com.example.service;
 
 import com.example.model.Cart;
 import com.example.model.Product;
-import com.example.model.User;
 import com.example.repository.CartRepository;
-import com.example.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -23,6 +20,16 @@ public class CartService extends MainService<Cart> {
     }
 
     public Cart addCart(Cart cart){
+        if (cart == null) {
+            throw new IllegalArgumentException("Cart cannot be null");
+        }
+
+        Cart existingCart = cartRepository.getCartById(cart.getId());
+
+        if (existingCart != null) {
+            throw new IllegalArgumentException("Cart with this ID already exists");
+        }
+
         cartRepository.addCart(cart);
         return cart;
     }

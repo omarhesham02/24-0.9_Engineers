@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 @Repository
-@SuppressWarnings("rawtypes")
 public class OrderRepository extends MainRepository<Order> {
 
     public OrderRepository() {
@@ -15,24 +14,24 @@ public class OrderRepository extends MainRepository<Order> {
 
     @Override
     protected String getDataPath() {
-        return "";
+        return "src/main/java/com/example/data/orders.json";
     }
     @Override
     protected Class<Order[]> getArrayType() {
-        return null;
+        return Order[].class;
     }
 
 
-    public void addOrder(Order order){
-
+    public void addOrder(Order order) {
+        save(order);
     }
 
     public ArrayList<Order> getOrders(){
-        return null;
+        return findAll();
     }
 
     public Order getOrderById(UUID orderId){
-        return null;
+        return findById(orderId);
     }
 
     public void deleteOrderById(UUID orderId){

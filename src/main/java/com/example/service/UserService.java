@@ -22,12 +22,14 @@ public class UserService extends MainService<User> {
     private final UserRepository userRepository;
     private final CartRepository cartRepository;
     private final MainRepository<Cart> cartMainRepository;
+    private final CartService cartService;
 
     @Autowired
-    public UserService(UserRepository userRepository, CartRepository cartRepository, MainRepository<User> userMainRepository, MainRepository<Cart> cartMainRepository) {
+    public UserService(UserRepository userRepository, CartRepository cartRepository, MainRepository<Cart> cartMainRepository, CartService cartService) {
         this.userRepository = userRepository;
         this.cartRepository = cartRepository;
         this.cartMainRepository = cartMainRepository;
+        this.cartService = cartService;
     }
 
     public User addUser(User user) {
@@ -77,6 +79,12 @@ public class UserService extends MainService<User> {
             throw new IllegalArgumentException("User ID cannot be null");
 
         Cart cart = cartRepository.getCartByUserId(userId);
+
+        if (cart == null) {
+            cart = cartService.addCart(new Cart(userId));
+        }
+
+        assert cart != null;
         Order order = new Order(userId,
                 cart.getProducts().stream().mapToDouble(Product::getPrice).sum(),
                 cart.getProducts());
@@ -85,7 +93,6 @@ public class UserService extends MainService<User> {
         userRepository.addOrderToUser(userId, order);
     }
 
-    // TODO: Check emptyCart(UUID userId) method
     public void emptyCart(UUID userId) {
         if (userId == null) {
             throw new IllegalArgumentException("User ID cannot be null");
@@ -100,7 +107,6 @@ public class UserService extends MainService<User> {
         cartMainRepository.override(cart);
     }
 
-    // TODO: Why is .getOrderById not finding the order?!
     public void removeOrderFromUser(UUID userId, UUID orderId) {
 
         if (userId == null) {

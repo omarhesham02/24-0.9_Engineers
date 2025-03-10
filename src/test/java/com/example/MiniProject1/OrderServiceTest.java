@@ -1,6 +1,8 @@
 package com.example.MiniProject1;
 
 import com.example.model.User;
+import com.example.repository.OrderRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,11 +20,20 @@ class OrderServiceTest {
 
     @Autowired
     private OrderService orderService;
+    @Autowired
+    private OrderRepository orderRepository;
 
-    // before each test, we need to clear the files
+    private ArrayList<Order> ordersJSON;
+
     @BeforeEach
-    void setUp() {
-        orderService.clearAll();
+    void backupData() {
+        ordersJSON = new ArrayList<>(orderService.getOrders());
+        orderRepository.saveAll(new ArrayList<>());
+    }
+
+    @AfterEach
+    void restoreData() {
+        orderRepository.saveAll(ordersJSON);
     }
 
     @Test
