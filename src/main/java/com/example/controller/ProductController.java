@@ -19,32 +19,41 @@ public class ProductController {
     }
 
     @PostMapping("/")
-    public Product addProduct(@RequestBody Product product){
+    public Product addProduct(@RequestBody Product product) {
         return productService.addProduct(product);
     }
 
     @GetMapping("/")
-    public ArrayList<Product> getProducts(){
+    public ArrayList<Product> getProducts() {
         return productService.getProducts();
     }
 
     @GetMapping("/{productId}")
-    public Product getProductById(@PathVariable UUID productId){
+    public Product getProductById(@PathVariable UUID productId) {
         return productService.getProductById(productId);
     }
 
     @PutMapping("/update/{productId}")
-    public Product updateProduct(@PathVariable UUID productId, @RequestBody Map<String,Object>
-            body)
-    {
+    public Product updateProduct(@PathVariable UUID productId, @RequestBody Map<String, Object>
+            body) {
         String newName = (String) body.get("name");
         double newPrice = (double) body.get("price");
-        return productService.updateProduct(productId, newName, newPrice);
+
+        try {
+            return productService.updateProduct(productId, newName, newPrice);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 
     @PutMapping("/applyDiscount")
     public String applyDiscount(@RequestParam double discount,@RequestBody ArrayList<UUID> productIds){
-        return productService.applyDiscount(discount, productIds);
+        try {
+            productService.applyDiscount(discount, productIds);
+            return "Discount applied successfully";
+        } catch (IllegalArgumentException e){
+            return "Failed to apply discount";
+        }
     }
 
     @DeleteMapping("/delete/{productId}")

@@ -51,9 +51,17 @@ public class ProductService extends MainService<Product> {
         return productRepository.updateProduct(productId, newName, newPrice);
     }
 
-    public String applyDiscount(double discount, ArrayList<UUID> productIds) {
-//        return productRepository.applyDiscount(discount, productIds);
-        return null;
+    public void applyDiscount(double discount, ArrayList<UUID> productIds) {
+
+        if (productIds == null) {
+            throw new IllegalArgumentException("Product IDs cannot be null");
+        }
+
+        if (discount < 0 || discount > 100) {
+            throw new IllegalArgumentException("Discount must be between 0 and 100");
+        }
+
+        productRepository.applyDiscount(discount, productIds);
     }
 
     public void deleteProductById(UUID productId) {
