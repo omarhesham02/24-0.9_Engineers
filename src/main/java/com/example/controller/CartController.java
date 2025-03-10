@@ -38,14 +38,12 @@ public class CartController {
     @PutMapping("/addProduct/{cartId}")
     public String addProductToCart(@PathVariable UUID cartId, @RequestBody Product product){
         cartService.addProductToCart(cartId, product);
-        // Return a more suitable string
         return "Product added to the cart successfully";
     }
 
     @DeleteMapping("/delete/{cartId}")
     public String deleteCartById(@PathVariable UUID cartId){
         cartService.deleteCartById(cartId);
-        // Return a more suitable string
         return "Cart deleted successfully";
     }
 

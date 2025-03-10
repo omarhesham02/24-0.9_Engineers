@@ -22,7 +22,6 @@ public class CartService extends MainService<Cart> {
         this.cartRepository = cartRepository;
     }
 
-
     public Cart addCart(Cart cart){
         cartRepository.addCart(cart);
         return cart;
