@@ -5,6 +5,7 @@ import com.example.model.Order;
 import com.example.model.Product;
 import com.example.model.User;
 import com.example.repository.CartRepository;
+import com.example.repository.MainRepository;
 import com.example.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,16 +21,24 @@ public class UserService extends MainService<User> {
 
     private final UserRepository userRepository;
     private final CartRepository cartRepository;
+    private final MainRepository<Cart> cartMainRepository;
 
     @Autowired
-    public UserService(UserRepository userRepository, CartRepository cartRepository) {
+    public UserService(UserRepository userRepository, CartRepository cartRepository, MainRepository<User> userMainRepository, MainRepository<Cart> cartMainRepository) {
         this.userRepository = userRepository;
         this.cartRepository = cartRepository;
+        this.cartMainRepository = cartMainRepository;
     }
 
     public User addUser(User user) {
         if (user.getId() == null || user.getName() == null) {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "User cannot be null");
+        }
+
+        User existingUser = userRepository.getUserById(user.getId());
+
+        if (existingUser != null) {
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "User with this ID already exists");
         }
 
         userRepository.addUser(user);
@@ -83,8 +92,12 @@ public class UserService extends MainService<User> {
         }
 
         Cart cart = cartRepository.getCartByUserId(userId);
-        for (Product product : cart.getProducts())
-            cartRepository.deleteProductFromCart(cart.getId(), product);
+        if (cart == null) {
+            throw new HttpClientErrorException(HttpStatus.NOT_FOUND, "Cart not found");
+        }
+
+        cart.setProducts(new ArrayList<>());
+        cartMainRepository.override(cart);
     }
 
     // TODO: Why is .getOrderById not finding the order?!

@@ -1,14 +1,12 @@
 package com.example.controller;
 
+import com.example.model.Cart;
 import com.example.model.Order;
 import com.example.model.Product;
 import com.example.model.User;
-import com.example.repository.ProductRepository;
 import com.example.service.CartService;
 import com.example.service.ProductService;
 import com.example.service.UserService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -80,22 +78,28 @@ public class UserController {
         }
     }
 
-    //TODO: Implement addProductToCart method for UserController
     @PutMapping("/addProductToCart")
     public String addProductToCart(@RequestParam UUID userId, @RequestParam UUID productId) {
         try {
             Product product = productService.getProductById(productId);
             cartService.addProductToCart(userId, product);
-            return "Cart emptied successfully";
+            return "Product added to cart successfully";
         } catch (Exception e) {
-            return "Failed to empty cart";
+            return "Failed to add product to cart";
         }
     }
 
-    //TODO: Implement deleteProductFromCart method for UserController
     @PutMapping("/deleteProductFromCart")
     public String deleteProductFromCart(@RequestParam UUID userId, @RequestParam UUID productId) {
-        return "Product deleted from cart";
+        try {
+            Product product = productService.getProductById(productId);
+            Cart cart = cartService.getCartByUserId(userId);
+
+            cartService.deleteProductFromCart(cart.getId(), product);
+            return "Product deleted successfully";
+        } catch (Exception e) {
+            return "Cart is empty";
+        }
     }
 
     @DeleteMapping("/delete/{userId}")
