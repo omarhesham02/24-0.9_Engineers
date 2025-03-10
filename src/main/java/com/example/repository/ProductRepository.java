@@ -37,8 +37,17 @@ public class ProductRepository extends MainRepository<Product> {
     public Product updateProduct(UUID productId, String newName, double newPrice) {
         return null;
     }
-    public void applyDiscount(double discount, ArrayList<UUID> productIds){
+    public void applyDiscount(double discount, ArrayList<UUID> productIds) {
 
+        for (UUID productId : productIds) {
+            Product product = getProductById(productId);
+            if (product == null) {
+                throw new IllegalArgumentException("Product with ID " + productId + " not found");
+            }
+            double newPrice = product.getPrice() * (1 - discount / 100);
+            product.setPrice(newPrice);
+            override(product);
+        }
     }
     public void deleteProductById(UUID productId){
 
