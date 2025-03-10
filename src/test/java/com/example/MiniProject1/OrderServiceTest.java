@@ -1,9 +1,17 @@
 package com.example.MiniProject1;
 
+import com.example.model.User;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import com.example.service.OrderService;
+import com.example.model.Order;
+
+import java.util.ArrayList;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class OrderServiceTest {
@@ -12,19 +20,92 @@ class OrderServiceTest {
     private OrderService orderService;
 
 
-    @Test
-    void addOrder() {
+    // before each test, we need to clear the files
+    @BeforeEach
+    void setUp() {
+        orderService.clearAll();
     }
 
     @Test
-    void getOrders() {
+    void addOrder_validOrder_shouldAddOrder() {
+        // Arrange
+        User user = new User("Mohamed Tammaa");
+        Order order = new Order(UUID.randomUUID(), user.getId(), 100.0, new ArrayList<>());
+
+        // Act
+        orderService.addOrder(order);
+
+        // Assert
+        Order retrievedOrder = orderService.getOrderById(order.getId());
+        assertNotNull(retrievedOrder);
+        assertEquals(order.getId(), retrievedOrder.getId());
+        assertEquals(order.getUserId(), retrievedOrder.getUserId());
     }
 
     @Test
-    void getOrderById() {
+    void addOrder_nullOrder_shouldThrowException() {
+        // Arrange
+        Order order = null;
+
+        // Act & Assert
+        //noinspection ConstantValue
+        assertThrows(IllegalArgumentException.class, () -> orderService.addOrder(order));
     }
 
     @Test
-    void deleteOrderById() {
+    void addOrder_nullUser_shouldThrowException() {
+        // Arrange
+        Order order = new Order(UUID.randomUUID(), null, 100.0, new ArrayList<>());
+
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class, () -> orderService.addOrder(order));
     }
+
+    @Test
+    void getOrders_addMultipleOrders_shouldReturnAllOrders() {
+        // Arrange
+        User user = new User("Omar Adel"), user2 = new User("Hussein");
+        Order order1 = new Order(UUID.randomUUID(), user.getId(), 100.0, new ArrayList<>()),
+                order2 = new Order(UUID.randomUUID(), user2.getId(), 200.0, new ArrayList<>());
+
+        orderService.addOrder(order1);
+        orderService.addOrder(order2);
+
+        // Act
+        ArrayList<Order> orders = orderService.getOrders();
+
+        // Assert
+        assertFalse(orders.isEmpty());
+        assertTrue(orders.contains(order1));
+        assertTrue(orders.contains(order2));
+        assertEquals(2, orders.stream().filter(o ->
+            o.getId().equals(order1.getId()) || o.getId().equals(order2.getId())
+        ).count());
+        assertEquals(2, orders.stream().filter(o ->
+            o.getUserId().equals(user.getId()) || o.getUserId().equals(user2.getId())
+        ).count());
+    }
+
+    @Test
+    void getOrders_noOrders_shouldReturnEmptyList() {
+        // Act
+        ArrayList<Order> orders = orderService.getOrders();
+
+        // Assert
+        assertTrue(orders.isEmpty());
+    }
+
+    @Test
+    void getOrders_afterAddingInvalidOrder_shouldReturnEmptyList() {
+        // Arrange
+        Order order = new Order(UUID.randomUUID(), null, 100.0, new ArrayList<>());
+        orderService.addOrder(order);
+
+        // Act
+        ArrayList<Order> orders = orderService.getOrders();
+
+        // Assert
+        assertTrue(orders.isEmpty());
+    }
+
 }

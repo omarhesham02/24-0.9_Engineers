@@ -59,11 +59,12 @@ public abstract class MainRepository<T extends Identifiable> {
     }
 
 
+    @SuppressWarnings("unused")
     public void overrideData(ArrayList<T> data) {
         saveAll(data);
     }
 
-    
+    public void clearAll() { saveAll(new ArrayList<>()); }
 
 
 }

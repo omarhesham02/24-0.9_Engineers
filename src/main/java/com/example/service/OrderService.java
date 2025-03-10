@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 @Service
-@SuppressWarnings("rawtypes")
 public class OrderService extends MainService<Order> {
 
     private final OrderRepository orderRepository;
@@ -31,5 +30,9 @@ public class OrderService extends MainService<Order> {
 
     public void deleteOrderById(UUID orderId) throws IllegalArgumentException{
         orderRepository.deleteOrderById(orderId);
+    }
+
+    public void clearAll() {
+        orderRepository.clearAll();
     }
 }
