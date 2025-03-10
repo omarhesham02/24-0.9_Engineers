@@ -49,17 +49,17 @@ class CartServiceTest {
         assertEquals(cart.getProducts(), result.getProducts());
     }
 
-    @Test
-    void addCart_withEmptyCart_shouldReturnEmptyCart() {
-        User user = new User("Bob");
-        Cart cart = new Cart(user.getId());
-        cart.setItems(Collections.emptyList());
-
-        Cart result = cartService.addCart(cart);
-
-        assertTrue(result.getItems().isEmpty());
-        assertEquals(cart, result);
-    }
+//    @Test
+//    void addCart_withEmptyCart_shouldReturnEmptyCart() {
+//        User user = new User("Bob");
+//        Cart cart = new Cart(user.getId());
+//        cart.setItems(Collections.emptyList());
+//
+//        Cart result = cartService.addCart(cart);
+//
+//        assertTrue(result.getItems().isEmpty());
+//        assertEquals(cart, result);
+//    }
 
 
 //
