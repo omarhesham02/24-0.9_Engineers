@@ -4,7 +4,6 @@ import com.example.model.Order;
 import com.example.repository.OrderRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpStatusCodeException;
 
 import java.util.ArrayList;
@@ -20,6 +19,8 @@ public class OrderService extends MainService<Order> {
     }
 
     public void addOrder(Order order){
+        if (order == null) throw new IllegalArgumentException("Order cannot be null");
+        if (order.getUserId() == null) throw new IllegalArgumentException("UserId cannot be null");
         orderRepository.addOrder(order);
     }
 
@@ -28,14 +29,13 @@ public class OrderService extends MainService<Order> {
     }
 
     public Order getOrderById(UUID orderId){
+        if (orderId == null) throw new IllegalArgumentException("OrderId cannot be null");
         return orderRepository.getOrderById(orderId);
     }
 
     public void deleteOrderById(UUID orderId) throws IllegalArgumentException {
-
-        if (orderRepository.getOrderById(orderId) == null) {
+        if (orderId == null)
             throw new IllegalArgumentException("Order not found");
-        }
 
         Order order = orderRepository.getOrderById(orderId);
 
@@ -44,9 +44,5 @@ public class OrderService extends MainService<Order> {
         }
 
         orderRepository.deleteOrderById(orderId);
-    }
-
-    public void clearAll() {
-        orderRepository.clearAll();
     }
 }
