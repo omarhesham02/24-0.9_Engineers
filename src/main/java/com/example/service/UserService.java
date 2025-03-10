@@ -28,9 +28,10 @@ public class UserService extends MainService<User> {
     }
 
     public User addUser(User user) {
-        if (user == null) {
+        if (user.getId() == null || user.getName() == null) {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "User cannot be null");
         }
+
         userRepository.addUser(user);
         return user;
     }
@@ -121,8 +122,13 @@ public class UserService extends MainService<User> {
         if (user == null) {
             throw new HttpClientErrorException(HttpStatus.NOT_FOUND, "User not found");
         }
+
         userRepository.deleteUser(userId);
+
         Cart cart = cartRepository.getCartByUserId(userId);
-        cartRepository.deleteCartById(cart.getId());
+
+        if (cart != null) {
+            cartRepository.deleteCartById(cart.getId());
+        }
     }
 }
