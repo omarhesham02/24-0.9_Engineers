@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-@SuppressWarnings("rawtypes")
 public class CartRepository extends MainRepository<Cart> {
 
     public CartRepository() {}
@@ -35,10 +34,7 @@ public class CartRepository extends MainRepository<Cart> {
     }
 
     public Cart getCartById(UUID id){
-        return findAll().stream()
-                .filter(cart -> cart.getId().equals(id))
-                .findFirst()
-                .orElse(null);
+        return findById(id);
     }
 
     public Cart getCartByUserId(UUID userId){
@@ -53,6 +49,7 @@ public class CartRepository extends MainRepository<Cart> {
     // product to be in the cart at a given time. The following method does not allow for duplicates.
     public void addProductToCart(UUID cartId, Product product) {
         Cart cart = getCartById(cartId);
+
         if (cart == null) {
             throw new IllegalArgumentException("Cart with ID " + cartId + " not found");
         }
@@ -60,8 +57,8 @@ public class CartRepository extends MainRepository<Cart> {
         if (productExists) {
             throw new IllegalArgumentException("Product with ID " + product.getId() + " already exists in cart");
         }
-        cart.getProducts().add(product);
 
+        cart.getProducts().add(product);
         override(cart);
     }
 

@@ -2,7 +2,6 @@ package com.example.repository;
 
 import com.example.model.Order;
 import com.example.model.User;
-import com.example.service.CartService;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.client.HttpClientErrorException;
 
@@ -12,12 +11,6 @@ import java.util.UUID;
 
 @Repository
 public class UserRepository extends MainRepository<User> {
-
-    private final CartService cartService;
-
-    public UserRepository(CartService cartService) {
-        this.cartService = cartService;
-    }
 
     @Override
     protected String getDataPath() {
@@ -34,10 +27,7 @@ public class UserRepository extends MainRepository<User> {
     }
 
     public User getUserById(UUID id) {
-        return findAll().stream()
-                .filter(user -> user.getId().equals(id))
-                .findFirst()
-                .orElse(null);
+        return findById(id);
     }
 
     public User addUser(User user) {
@@ -56,11 +46,7 @@ public class UserRepository extends MainRepository<User> {
         override(user);
     }
 
-    public void emptyCart(UUID testUserId) {
-        cartService.deleteCartById(testUserId);
-    }
 
-    //TODO: Fix removeOrderFromUser method
     public void removeOrderFromUser(UUID userId, UUID orderId) throws HttpClientErrorException {
         User user = getUserById(userId);
         Order order = user.getOrderById(orderId);
@@ -72,6 +58,10 @@ public class UserRepository extends MainRepository<User> {
         ArrayList<User> users = findAll();
         users.removeIf(user -> user.getId().equals(userId));
         saveAll(users);
+    }
+
+    public void deleteAllUsers() {
+        saveAll(new ArrayList<>());
     }
 
 

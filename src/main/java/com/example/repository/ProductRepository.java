@@ -18,6 +18,8 @@ public class ProductRepository extends MainRepository<Product> {
         return "src/main/java/com/example/data/products.json";
     }
 
+
+
     @Override
     protected Class<Product[]> getArrayType() {
         return null;
@@ -25,13 +27,14 @@ public class ProductRepository extends MainRepository<Product> {
 
 
     public Product addProduct(Product product){
-        return null;
+        save(product);
+        return product;
     }
     public ArrayList<Product> getProducts(){
-        return null;
+        return findAll();
     }
     public Product getProductById(UUID productId){
-        return null;
+        return findById(productId);
     }
     public Product updateProduct(UUID productId, String newName, double newPrice) {
         return null;

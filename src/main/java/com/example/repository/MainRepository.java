@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.UUID;
 
 import com.example.interfaces.Identifiable;
 import org.springframework.context.annotation.Primary;
@@ -37,6 +38,13 @@ public abstract class MainRepository<T extends Identifiable> {
         }
     }
 
+    public T findById(UUID id) {
+        return findAll().stream()
+                .filter(data -> data.getId().equals(id))
+                .findFirst()
+                .orElse(null);
+    }
+
     public void saveAll(ArrayList<T> data) {
         try {
             objectMapper.writeValue(new File(getDataPath()), data);
@@ -59,11 +67,12 @@ public abstract class MainRepository<T extends Identifiable> {
     }
 
 
+    @SuppressWarnings("unused")
     public void overrideData(ArrayList<T> data) {
         saveAll(data);
     }
 
-    
+    public void clearAll() { saveAll(new ArrayList<>()); }
 
 
 }
