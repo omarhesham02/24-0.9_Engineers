@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 @Repository
-@SuppressWarnings("rawtypes")
 public class ProductRepository extends MainRepository<Product> {
 
     public ProductRepository() {
@@ -22,9 +21,8 @@ public class ProductRepository extends MainRepository<Product> {
 
     @Override
     protected Class<Product[]> getArrayType() {
-        return null;
+        return Product[].class;
     }
-
 
     public Product addProduct(Product product){
         save(product);

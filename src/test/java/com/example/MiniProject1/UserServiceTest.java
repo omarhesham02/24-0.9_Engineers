@@ -7,6 +7,8 @@ import com.example.model.User;
 import com.example.repository.UserRepository;
 import com.example.service.CartService;
 import com.example.service.UserService;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,6 +32,19 @@ class UserServiceTest {
     private UserRepository userRepository;
     @Autowired
     private Cart cart;
+
+    private ArrayList<User> usersJSON;
+
+    @BeforeEach
+    void backupData() {
+        usersJSON = new ArrayList<>(userService.getUsers());
+        userRepository.saveAll(new ArrayList<>());
+    }
+
+    @AfterEach
+    void restoreData() {
+        userRepository.saveAll(usersJSON);
+    }
 
 
     @Test
@@ -227,11 +242,10 @@ class UserServiceTest {
         userService.addUser(user);
 
         Cart cart = new Cart(user.getId());
-        cartService.addCart(cart);
-
         Product product = new Product("Test Product", 100.0);
 
-        cartService.addProductToCart(cart.getId(), product);
+        cartService.addProductToCart(user.getId(), product);
+        cartService.addCart(cart);
 
         // Act
         userService.addOrderToUser(user.getId());

@@ -83,7 +83,7 @@ public class UserController {
         try {
             Product product = productService.getProductById(productId);
             cartService.addProductToCart(userId, product);
-            return "Product added to cart successfully";
+            return "Product added to cart";
         } catch (Exception e) {
             return "Failed to add product to cart";
         }
@@ -96,7 +96,7 @@ public class UserController {
             Cart cart = cartService.getCartByUserId(userId);
 
             cartService.deleteProductFromCart(cart.getId(), product);
-            return "Product deleted successfully";
+            return "Product deleted from cart";
         } catch (Exception e) {
             return "Cart is empty";
         }
