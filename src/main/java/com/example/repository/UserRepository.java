@@ -53,7 +53,7 @@ public class UserRepository extends MainRepository<User> {
     public void addOrderToUser(UUID userId, Order order) {
         User user = getUserById(userId);
         user.addOrder(order);
-        save(user);
+        override(user);
     }
 
     public void emptyCart(UUID testUserId) {
@@ -65,7 +65,7 @@ public class UserRepository extends MainRepository<User> {
         User user = getUserById(userId);
         Order order = user.getOrderById(orderId);
         user.removeOrder(order);
-        save(user);
+        override(user);
     }
 
     public void deleteUser(UUID userId) throws HttpClientErrorException {

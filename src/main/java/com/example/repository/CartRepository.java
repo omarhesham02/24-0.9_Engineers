@@ -51,11 +51,17 @@ public class CartRepository extends MainRepository<Cart> {
     // There is possibly two approaches, one is to allow duplicates (since there is no
     // indicator of the amount of a product), or to only allow for one instance of a
     // product to be in the cart at a given time. The following method allows for duplicates.
-    public void addProductToCart(UUID cartId, Product product){
+    public void addProductToCart(UUID cartId, Product product) {
         Cart cart = getCartById(cartId);
-        if (cart == null) {return;}
+        if (cart == null) {
+            return;
+        }
         cart.getProducts().add(product);
-        save(cart);
+
+        ArrayList<Cart> carts = findAll();
+        carts.removeIf(existingCart -> existingCart.getId().equals(cartId));
+        carts.add(cart);
+        saveAll(carts);
     }
 
     public void deleteProductFromCart(UUID cartId, Product product){
