@@ -25,7 +25,7 @@ public class UserService extends MainService<User> {
     private final CartService cartService;
 
     @Autowired
-    public UserService(UserRepository userRepository, CartRepository cartRepository, MainRepository<User> userMainRepository, MainRepository<Cart> cartMainRepository, CartService cartService) {
+    public UserService(UserRepository userRepository, CartRepository cartRepository, MainRepository<Cart> cartMainRepository, CartService cartService) {
         this.userRepository = userRepository;
         this.cartRepository = cartRepository;
         this.cartMainRepository = cartMainRepository;
