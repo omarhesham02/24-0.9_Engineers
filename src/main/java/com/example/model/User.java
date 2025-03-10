@@ -1,5 +1,6 @@
 package com.example.model;
 
+import com.example.interfaces.Identifiable;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -8,7 +9,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Component
-public class User {
+public class User implements Identifiable {
     private UUID id;
     private String name;
     private List<Order> orders = new ArrayList<>();
@@ -59,6 +60,13 @@ public class User {
 
     public List<Order> getOrders() {
         return orders;
+    }
+
+    public Order getOrderById(UUID orderId) {
+        return orders.stream()
+                .filter(order -> order.getId().equals(orderId))
+                .findFirst()
+                .orElse(null);
     }
 
     public void addOrder(Order order) {

@@ -1,257 +1,412 @@
 package com.example.MiniProject1;
 
+import com.example.model.Cart;
 import com.example.model.Order;
+import com.example.model.Product;
 import com.example.model.User;
 import com.example.repository.UserRepository;
+import com.example.service.CartService;
 import com.example.service.UserService;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
+@SpringBootTest
 class UserServiceTest {
 
-    @Mock
-    private UserRepository userRepository;
-
-    @InjectMocks
+    @Autowired
     private UserService userService;
 
+    @Autowired
+    private CartService cartService;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private Cart cart;
+
+    private ArrayList<User> usersJSON;
+
     @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
+    void backupData() {
+        usersJSON = new ArrayList<>(userService.getUsers());
+        userRepository.saveAll(new ArrayList<>());
     }
 
+    @AfterEach
+    void restoreData() {
+        userRepository.saveAll(usersJSON);
+    }
+
+
     @Test
-    void addUser_ShouldReturnUser_WhenUserIsAdded() {
+    void addUser_withValidInput_shouldReturnSameUserData() {
         // Arrange
-        UUID testUserId = UUID.randomUUID();
-        String testUserName = "Test User";
-        User user = new User(testUserId, testUserName);
-        when(userRepository.addUser(user)).thenReturn(user);
+        User user = new User(UUID.randomUUID(), "Mo Tammaa");
 
         // Act
         User result = userService.addUser(user);
 
         // Assert
-        assertNotNull(result);
-        assertEquals(testUserName, result.getName());
-        assertEquals(testUserId, result.getId());
-        verify(userRepository, times(1)).addUser(user);
+        assertEquals(user, result);
     }
 
     @Test
-    void addUser_ShouldReturnUser_WhenUserIsAddedWithDifferentName() {
+    void addUser_withDuplicateId_shouldThrowException() {
         // Arrange
-        UUID testUserId = UUID.randomUUID();
-        String testUserName = "Test User 2";
-        User user = new User(testUserId, testUserName);
-        when(userRepository.addUser(user)).thenReturn(user);
+        UUID id = UUID.randomUUID();
+        User user = new User(id, "Mo Tammaa2");
+        User duplicateUser = new User(id, "Mo Tammaa9");
 
         // Act
-        User result = userService.addUser(user);
+        userService.addUser(user);
 
         // Assert
-        assertNotNull(result);
-        assertEquals(testUserName, result.getName());
-        assertEquals(testUserId, result.getId());
+        assertThrows(Exception.class, () -> userService.addUser(duplicateUser));
     }
 
     @Test
-    void addUser_ShouldReturnUserWithOrders_WhenUserHasOrders() {
+    void addUser_withNullName_shouldThrowException() {
         // Arrange
-        UUID testUserId = UUID.randomUUID();
-        String testUserName = "Test User 3";
-        ArrayList<Order> orders = new ArrayList<>();
-        orders.add(new Order(UUID.randomUUID(), 100.0, new ArrayList<>()));
-        orders.add(new Order(UUID.randomUUID(), 200.0, new ArrayList<>()));
-        orders.add(new Order(UUID.randomUUID(), 300.0, new ArrayList<>()));
-        User user = new User(testUserId, testUserName, orders);
-        when(userRepository.addUser(user)).thenReturn(user);
+        User user = new User(UUID.randomUUID(), null);
 
-        // Act
-        User result = userService.addUser(user);
-
-        // Assert
-        assertNotNull(result);
-        assertEquals(testUserName, result.getName());
-        assertEquals(testUserId, result.getId());
-        assertEquals(3, result.getOrders().size());
-        verify(userRepository, times(1)).addUser(user);
+        // Act & Assert
+        assertThrows(Exception.class, () -> userService.addUser(user));
     }
 
     @Test
-    void getUsers_ShouldReturnListOfUsers_WhenUsersExist() {
+    void getUsers_withNoUsers_shouldReturnEmptyList() {
         // Arrange
-        List<User> users = new ArrayList<>();
-        users.add(new User(UUID.randomUUID(), "Test User 1"));
-        users.add(new User(UUID.randomUUID(), "Test User 2"));
-        users.add(new User(UUID.randomUUID(), "Test User 3"));
-        when(userRepository.getAllUsers()).thenReturn(users);
+        userRepository.deleteAllUsers();
 
         // Act
-        List<User> result = userService.getUsers();
+        ArrayList<User> result = userService.getUsers();
 
         // Assert
-        assertNotNull(result);
-        assertEquals(3, result.size());
-        verify(userRepository, times(1)).getAllUsers();
-    }
-
-    @Test
-    void getUserById_ShouldReturnUser_WhenUserExists() {
-        // Arrange
-        UUID testUserId = UUID.randomUUID();
-        String testUserName = "Test User 4";
-        User user = new User(testUserId, testUserName);
-        when(userRepository.getUserById(testUserId)).thenReturn(user);
-
-        // Act
-        User result = userService.getUserById(testUserId);
-
-        // Assert
-        assertNotNull(result);
-        assertEquals(testUserName, result.getName());
-        assertEquals(testUserId, result.getId());
-        verify(userRepository, times(1)).getUserById(testUserId);
-    }
-
-    @Test
-    void getUserById_ShouldReturnNull_WhenUserDoesNotExist() {
-        // Arrange
-        UUID testUserId = UUID.randomUUID();
-        when(userRepository.getUserById(testUserId)).thenReturn(null);
-
-        // Act
-        User result = userService.getUserById(testUserId);
-
-        // Assert
-        assertNull(result);
-        verify(userRepository, times(1)).getUserById(testUserId);
-    }
-
-    @Test
-    void getUserById_ShouldReturnUserWithOrders_WhenUserHasOrders() {
-        // Arrange
-        UUID testUserId = UUID.randomUUID();
-        String testUserName = "Test User 5";
-        ArrayList<Order> orders = new ArrayList<>();
-        orders.add(new Order(UUID.randomUUID(), 100.0, new ArrayList<>()));
-        orders.add(new Order(UUID.randomUUID(), 200.0, new ArrayList<>()));
-        orders.add(new Order(UUID.randomUUID(), 300.0, new ArrayList<>()));
-        User user = new User(testUserId, testUserName, orders);
-        when(userRepository.getUserById(testUserId)).thenReturn(user);
-
-        // Act
-        User result = userService.getUserById(testUserId);
-
-        // Assert
-        assertNotNull(result);
-        assertEquals(testUserName, result.getName());
-        assertEquals(testUserId, result.getId());
-        assertEquals(3, result.getOrders().size());
-        verify(userRepository, times(1)).getUserById(testUserId);
-    }
-
-    @Test
-    void getOrdersByUserId_ShouldReturnOrders_WhenUserHasOrders() {
-        // Arrange
-        UUID testUserId = UUID.randomUUID();
-        ArrayList<Order> orders = new ArrayList<>();
-        orders.add(new Order(UUID.randomUUID(), 100.0, new ArrayList<>()));
-        orders.add(new Order(UUID.randomUUID(), 200.0, new ArrayList<>()));
-        orders.add(new Order(UUID.randomUUID(), 300.0, new ArrayList<>()));
-        when(userRepository.getOrdersByUserId(testUserId)).thenReturn(orders);
-
-        // Act
-        List<Order> result = userService.getOrdersByUserId(testUserId);
-
-        // Assert
-        assertNotNull(result);
-        assertEquals(3, result.size());
-        verify(userRepository, times(1)).getOrdersByUserId(testUserId);
-    }
-
-    @Test
-    void getOrdersByUserId_ShouldReturnEmptyList_WhenUserHasNoOrders() {
-        // Arrange
-        UUID testUserId = UUID.randomUUID();
-        ArrayList<Order> orders = new ArrayList<>();
-        when(userRepository.getOrdersByUserId(testUserId)).thenReturn(orders);
-
-        // Act
-        List<Order> result = userService.getOrdersByUserId(testUserId);
-
-        // Assert
-        assertNotNull(result);
         assertEquals(0, result.size());
-        verify(userRepository, times(1)).getOrdersByUserId(testUserId);
     }
 
     @Test
-    void getOrdersByUserId_ShouldReturnNull_WhenUserDoesNotExist() {
+    void getUsers_withMultipleUsers_shouldReturnAllUsers() {
+
+        int currentUserCount = userService.getUsers().size();
+
         // Arrange
-        UUID testUserId = UUID.randomUUID();
-        when(userRepository.getOrdersByUserId(testUserId)).thenReturn(null);
+        User user1 = new User(UUID.randomUUID(), "Mo Tammaa3");
+        User user2 = new User(UUID.randomUUID(), "Omar Adel");
+        userService.addUser(user1);
+        userService.addUser(user2);
 
         // Act
-        List<Order> result = userService.getOrdersByUserId(testUserId);
+        ArrayList<User> result = userService.getUsers();
+
+        // Assert
+        assertEquals(currentUserCount + 2, result.size());
+        assertTrue(result.contains(user1));
+        assertTrue(result.contains(user2));
+    }
+
+    @Test
+    void getUsers_afterAddingInvalidUser_shouldNotReturnInvalidUser() {
+        // Arrange
+        int currentUserCount = userService.getUsers().size();
+
+        User user1 = new User(UUID.randomUUID(), "Omar Tamer");
+        User user2 = new User(UUID.randomUUID(), null);
+        userService.addUser(user1);
+
+        // Act
+        try {
+            userService.addUser(user2);
+            fail("Expected HttpClientErrorException to be thrown");
+        } catch (HttpClientErrorException e) {
+            // Exception is expected, continue with assertions
+        }
+
+        // Assert
+        ArrayList<User> result = userService.getUsers();
+        assertEquals(currentUserCount + 1, result.size());
+        assertTrue(result.contains(user1));
+        assertFalse(result.contains(user2));
+    }
+
+    @Test
+    void getUserById_withValidId_shouldReturnCorrectUser() {
+        // Arrange
+        User user = new User(UUID.randomUUID(), "Omar Hesham");
+        User anotherUser = new User(UUID.randomUUID(), "Omar Adel2");
+        userService.addUser(user);
+        userService.addUser(anotherUser);
+
+        // Act
+        User result = userService.getUserById(user.getId());
+
+        // Assert
+        assertEquals(user, result);
+    }
+
+    @Test
+    void getUserById_withInvalidId_shouldReturnNull() {
+        // Arrange
+        User user = new User(UUID.randomUUID(), "Mo Tammaa4");
+        userService.addUser(user);
+
+        // Act
+        User result = userService.getUserById(UUID.randomUUID());
 
         // Assert
         assertNull(result);
-        verify(userRepository, times(1)).getOrdersByUserId(testUserId);
     }
 
     @Test
-    void addOrderToUser_ShouldAddOrder_WhenUserExists() {
+    void getUserById_withNullId_shouldThrowException() {
         // Arrange
-        UUID testUserId = UUID.randomUUID();
-        User user = new User(testUserId, "Test User 8");
-        Order order = new Order(UUID.randomUUID(), 100.0, new ArrayList<>());
-        when(userRepository.getUserById(testUserId)).thenReturn(user);
+        User user = new User(UUID.randomUUID(), "Mo Tammaa5");
+        userService.addUser(user);
 
-        // Act
-        userService.addOrderToUser(testUserId);
-
-        // Assert
-        assertTrue(user.getOrders().contains(order));
-        verify(userRepository, times(1)).addOrderToUser(testUserId, order);
+        // Act & Assert
+        assertThrows(Exception.class, () -> userService.getUserById(null));
     }
 
     @Test
-    void addOrderToUser_ShouldNotAddOrder_WhenUserDoesNotExist() {
+    void getOrdersByUserId_withValidUserIdAndOrder_shouldReturnUserOrders() {
         // Arrange
-        UUID testUserId = UUID.randomUUID();
-        Order order = new Order(UUID.randomUUID(), 100.0, new ArrayList<>());
-        when(userRepository.getUserById(testUserId)).thenReturn(null);
+        User user = new User(UUID.randomUUID(), "Mo Tammaa6");
+        userService.addUser(user);
+
+        ArrayList<Product> products = new ArrayList<>(List.of(
+                new Product("Hohoz", 10),
+                new Product("Shokalata Corona Dark bel bondoq", 50),
+                new Product("V_Cola 3shan Pepsi moqat3a", 15))
+        );
+
+        Cart cart = new Cart(user.getId(), products);
+        cartService.addCart(cart);
+        userService.addOrderToUser(user.getId());
 
         // Act
-        userService.addOrderToUser(testUserId);
+        List<Order> result = userService.getOrdersByUserId(user.getId());
 
         // Assert
-        verify(userRepository, times(0)).addOrderToUser(testUserId, order);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(products.stream().mapToDouble(Product::getPrice).sum(), result.getFirst().getTotalPrice());
+        assertEquals(products, result.getFirst().getProducts());
     }
 
     @Test
-    void addOrderToUser_ShouldNotAddOrder_WhenOrderIsNull() {
+    void getOrdersByUserId_withInvalidUserId_shouldReturnNull() {
         // Arrange
-        UUID testUserId = UUID.randomUUID();
-        User user = new User(testUserId, "Test User 8");
-        when(userRepository.getUserById(testUserId)).thenReturn(user);
+        User user = new User(UUID.randomUUID(), "Mo Tammaa7");
+        ArrayList<Product> products = new ArrayList<>(List.of(
+                new Product("Hohoz", 10),
+                new Product("Shokalata Corona Dark bel bondoq", 50),
+                new Product("V_Cola 3shan Pepsi moqat3a", 15))
+        );
+
+        cartService.addCart(new Cart(user.getId(), products));
 
         // Act
-        userService.addOrderToUser(testUserId);
+        List<Order> result = userService.getOrdersByUserId(UUID.randomUUID());
 
         // Assert
-        assertTrue(user.getOrders().isEmpty());
-        verify(userRepository, times(0)).addOrderToUser(testUserId, null);
+        assertNull(result);
     }
+
+    @Test
+    void getOrdersByUserId_userWithNoOrders_shouldReturnEmptyList() {
+        // Arrange
+        User user = new User(UUID.randomUUID(), "Mo Tammaa8");
+        userService.addUser(user);
+
+        // Act
+        List<Order> result = userService.getOrdersByUserId(user.getId());
+
+        // Assert
+        assertEquals(0, result.size());
+        assertNotNull(result);
+    }
+
+    @Test
+    void addOrderToUser_shouldAddOrder_whenUserExists() {
+        // Arrange
+        User user = new User(UUID.randomUUID(), "Test User 8");
+        userService.addUser(user);
+
+        Cart cart = new Cart(user.getId());
+        Product product = new Product("Test Product", 100.0);
+
+        cartService.addProductToCart(user.getId(), product);
+        cartService.addCart(cart);
+
+        // Act
+        userService.addOrderToUser(user.getId());
+
+        // Assert
+        List<Order> orders = userService.getOrdersByUserId(user.getId());
+        assertFalse(orders.isEmpty());
+
+        assertEquals(cart.getUserId(), orders.getFirst().getUserId());
+        assertEquals(user.getId(), cart.getUserId());
+
+        assertEquals(100, orders.getFirst().getTotalPrice());
+    }
+
+    @Test
+    void addOrderToUser_shouldNotAddOrder_whenUserDoesNotExist() {
+        // Arrange
+        UUID nonExistentUserId = UUID.randomUUID();
+
+        // Act & Assert
+        assertThrows(Exception.class, () -> userService.addOrderToUser(nonExistentUserId));
+    }
+
+    @Test
+    void addOrderToUser_shouldEmptyCart_afterOrderCreation() {
+        // Arrange
+        User user = new User(UUID.randomUUID(), "Test User 9");
+        userService.addUser(user);
+
+        Product product = new Product("Test Product", 100.0);
+        Product product2 = new Product("Test Product2", 200.0);
+
+
+        cartService.addCart(new Cart(user.getId(), List.of(product, product2)));
+
+        // Act
+        userService.addOrderToUser(user.getId());
+
+        // Assert
+        cart = cartService.getCartByUserId(user.getId());
+        assertEquals(user.getId(), cart.getUserId());
+        assertTrue(cart.getProducts().isEmpty());
+    }
+
+    @Test
+    void emptyCart_shouldRemoveAllProducts_whenUserExistsAndCartExists() {
+        // Arrange
+        User user = new User(UUID.randomUUID(), "Test User 10");
+        userService.addUser(user);
+
+        Product product1 = new Product("Test Product 1", 100.0);
+        Product product2 = new Product("Test Product 2", 200.0);
+        Product product3 = new Product("Test Product 3", 300.0);
+
+        Cart cart = new Cart(user.getId());
+
+        cartService.addProductToCart(user.getId(), product1);
+        cartService.addProductToCart(user.getId(), product2);
+        cartService.addProductToCart(user.getId(), product3);
+
+
+        cartService.addCart(cart);
+
+        // Act
+        userService.emptyCart(user.getId());
+
+        // Assert
+        cart = cartService.getCartByUserId(user.getId());
+        assertTrue(cart.getProducts().isEmpty());
+    }
+
+    @Test
+    void emptyCart_shouldThrowException_whenUserDoesNotExist() {
+        // Arrange
+        UUID nonExistentUserId = UUID.randomUUID();
+
+        // Act & Assert
+        assertThrows(Exception.class, () -> userService.emptyCart(nonExistentUserId));
+    }
+
+    @Test
+    void emptyUserCart_ShouldThrowException_WhenCartDoesNotExist() {
+        // Arrange
+        UUID nonExistentUserId = UUID.randomUUID();
+
+        // Act & Assert
+        assertThrows(Exception.class, () -> userService.emptyCart(nonExistentUserId));
+    }
+
+    @Test
+    void removeOrderFromUser_shouldRemoveOrder_whenUserExistsAndOrderExists() {
+        // Arrange
+        User user = new User(UUID.randomUUID(), "Test User 11");
+        userService.addUser(user);
+
+        Cart cart = cartService.addCart(new Cart(user.getId()));
+
+        Product product = new Product("Test Product", 100.0);
+        cartService.addProductToCart(cart.getId(), product);
+
+        userService.addOrderToUser(user.getId());
+        List<Order> orders = userService.getOrdersByUserId(user.getId());
+        Order order = orders.getFirst();
+
+        // Act
+        userService.removeOrderFromUser(user.getId(), order.getId());
+
+        // Assert
+        List<Order> updatedOrders = userService.getOrdersByUserId(user.getId());
+        assertTrue(updatedOrders.isEmpty());
+    }
+
+    @Test
+    void removeOrderFromUser_shouldThrowException_whenUserDoesNotExist() {
+        // Arrange
+        UUID nonExistentUserId = UUID.randomUUID();
+        UUID orderId = UUID.randomUUID();
+
+        // Act & Assert
+        assertThrows(Exception.class, () ->
+            userService.removeOrderFromUser(nonExistentUserId, orderId));
+    }
+
+    @Test
+    void removeOrderFromUser_shouldThrowException_whenOrderDoesNotExist() {
+        // Arrange
+        User user = new User(UUID.randomUUID(), "Test User 12");
+        userService.addUser(user);
+        UUID nonExistentOrderId = UUID.randomUUID();
+
+        // Act & Assert
+        assertThrows(Exception.class, () ->
+            userService.removeOrderFromUser(user.getId(), nonExistentOrderId));
+    }
+
+    @Test
+    void deleteUserById_shouldDeleteUser_whenUserExists() {
+        // Arrange
+        User user = new User(UUID.randomUUID(), "Test User 13");
+        userService.addUser(user);
+
+        // Act
+        userService.deleteUserById(user.getId());
+
+        // Assert
+        assertNull(userService.getUserById(user.getId()));
+    }
+
+    @Test
+    void deleteUserById_shouldThrowException_whenUserDoesNotExist() {
+        // Arrange
+        UUID nonExistentUserId = UUID.randomUUID();
+
+        // Act & Assert
+        assertThrows(Exception.class, () -> userService.deleteUserById(nonExistentUserId));
+    }
+
+    @Test
+    void deleteUserById_shouldThrowException_whenUserIdIsNull() {
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class, () -> userService.deleteUserById(null));
+    }
+
 }

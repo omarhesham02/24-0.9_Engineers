@@ -2,7 +2,6 @@ package com.example.repository;
 
 import com.example.model.Order;
 import com.example.model.User;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.client.HttpClientErrorException;
 
@@ -12,6 +11,12 @@ import java.util.UUID;
 
 @Repository
 public class UserRepository extends MainRepository<User> {
+
+    private final OrderRepository orderRepository;
+
+    public UserRepository(OrderRepository orderRepository) {
+        this.orderRepository = orderRepository;
+    }
 
     @Override
     protected String getDataPath() {
@@ -28,10 +33,7 @@ public class UserRepository extends MainRepository<User> {
     }
 
     public User getUserById(UUID id) {
-        return findAll().stream()
-                .filter(user -> user.getId().equals(id))
-                .findFirst()
-                .orElse(null);
+        return findById(id);
     }
 
     public User addUser(User user) {
@@ -41,40 +43,37 @@ public class UserRepository extends MainRepository<User> {
 
     public List<Order> getOrdersByUserId(UUID userId) throws HttpClientErrorException {
         User user = getUserById(userId);
-
-        if (user == null) {
-            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
-        }
-
         return user.getOrders();
     }
 
     public void addOrderToUser(UUID userId, Order order) {
         User user = getUserById(userId);
-
-        if (user == null || order == null) {
-            return;
-        }
-
         user.addOrder(order);
-        save(user);
+        orderRepository.addOrder(order);
+        override(user);
     }
 
-    //TODO: Fix removeOrderFromUser method
+
     public void removeOrderFromUser(UUID userId, UUID orderId) throws HttpClientErrorException {
         User user = getUserById(userId);
-        user.getOrders().removeIf(order -> order.getId().equals(orderId));
+        Order order = user.getOrderById(orderId);
+        user.removeOrder(order);
+        override(user);
     }
 
     public void deleteUser(UUID userId) throws HttpClientErrorException {
-
         ArrayList<User> users = findAll();
         users.removeIf(user -> user.getId().equals(userId));
-
-        if (users.size() == findAll().size()) {
-            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
-        }
-
         saveAll(users);
+    }
+
+    public void deleteAllUsers() {
+        saveAll(new ArrayList<>());
+    }
+
+
+    public Order getOrderById(UUID userId, UUID orderId) {
+        User user = getUserById(userId);
+        return user.getOrderById(orderId);
     }
 }

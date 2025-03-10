@@ -3,13 +3,15 @@ package com.example.service;
 import com.example.model.Product;
 import com.example.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.ArrayList;
 import java.util.UUID;
 
 @Service
-public class ProductService {
+public class ProductService extends MainService<Product> {
 
     private final ProductRepository productRepository;
 
@@ -18,17 +20,20 @@ public class ProductService {
         this.productRepository = productRepository;
     }
 
+
     public Product addProduct(Product product) {
-        if (product.getName() == null || product.getName().trim().isEmpty()) {
-            throw new IllegalArgumentException("Product name cannot be null or empty!");
+        if (product.getId() == null || product.getName() == null) {
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Product cannot be null");
         }
-        if (product.getPrice() < 0) {
-            throw new IllegalArgumentException("Price cannot be negative!");
+
+        Product existingProduct = productRepository.getProductById(product.getId());
+
+        if (existingProduct != null) {
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Product with this ID already exists");
         }
-        if (product.getPrice() == 0){
-            throw new IllegalArgumentException("Price cannot be zero!");
-        }
-        return productRepository.addProduct(product);
+
+        productRepository.addProduct(product);
+        return product;
     }
 
     public ArrayList<Product> getProducts() {

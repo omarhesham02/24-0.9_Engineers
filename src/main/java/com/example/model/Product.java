@@ -1,8 +1,10 @@
 package com.example.model;
 
+import com.example.interfaces.Identifiable;
+
 import java.util.UUID;
 
-public class Product {
+public class Product implements Identifiable {
     private UUID id;
     private String name;
     private double price;

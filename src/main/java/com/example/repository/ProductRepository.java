@@ -7,18 +7,20 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 @Repository
-@SuppressWarnings("rawtypes")
 public class ProductRepository extends MainRepository<Product> {
     @Override
     protected String getDataPath() {
         return "src/main/java/com/example/data/products.json";
     }
 
+
+
     @Override
     protected Class<Product[]> getArrayType() {
         return Product[].class;
     }
 
+<<<<<<< HEAD
     public Product addProduct(Product product) {
         if (product.getId() == null) {
             product.setId(UUID.fromString(UUID.randomUUID().toString()));
@@ -36,6 +38,17 @@ public class ProductRepository extends MainRepository<Product> {
                 .filter(product -> product.getId() != null && product.getId().equals(productId))
                 .findFirst()
                 .orElse(null);
+=======
+    public Product addProduct(Product product){
+        save(product);
+        return product;
+    }
+    public ArrayList<Product> getProducts(){
+        return findAll();
+    }
+    public Product getProductById(UUID productId){
+        return findById(productId);
+>>>>>>> ffe50a8641b8ebc09371422ee058fa17fff7079d
     }
 
     public Product updateProduct(UUID productId, String newName, double newPrice) {
@@ -50,6 +63,7 @@ public class ProductRepository extends MainRepository<Product> {
         }
         return null;
     }
+<<<<<<< HEAD
 
     public void applyDiscount(double discount, ArrayList<UUID> productIds) {
         ArrayList<Product> products = findAll();
@@ -60,6 +74,19 @@ public class ProductRepository extends MainRepository<Product> {
             }
         }
         overrideData(products);
+=======
+    public void applyDiscount(double discount, ArrayList<UUID> productIds) {
+
+        for (UUID productId : productIds) {
+            Product product = getProductById(productId);
+            if (product == null) {
+                throw new IllegalArgumentException("Product with ID " + productId + " not found");
+            }
+            double newPrice = product.getPrice() * (1 - discount / 100);
+            product.setPrice(newPrice);
+            override(product);
+        }
+>>>>>>> ffe50a8641b8ebc09371422ee058fa17fff7079d
     }
 
     public void deleteProductById(UUID productId) {
