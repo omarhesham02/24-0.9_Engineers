@@ -2,7 +2,10 @@ package com.example.controller;
 
 import com.example.model.Order;
 import com.example.service.OrderService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpStatusCodeException;
+
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -12,6 +15,7 @@ import java.util.UUID;
 public class OrderController {
     private final OrderService orderService;
 
+    @Autowired
     public OrderController(OrderService orderService) {
         this.orderService = orderService;
     }
@@ -36,7 +40,7 @@ public class OrderController {
         try {
             orderService.deleteOrderById(orderId);
             return "Order deleted successfully";
-        } catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException | HttpStatusCodeException e) {
             return "Order not found";
         }
     }

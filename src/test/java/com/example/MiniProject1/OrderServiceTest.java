@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import com.example.service.OrderService;
 import com.example.model.Order;
+import org.springframework.web.client.HttpStatusCodeException;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -28,7 +29,7 @@ class OrderServiceTest {
     @BeforeEach
     void backupData() {
         ordersJSON = new ArrayList<>(orderService.getOrders());
-        orderRepository.saveAll(new ArrayList<>());
+        orderRepository.clearAll();
     }
 
     @AfterEach
@@ -68,7 +69,7 @@ class OrderServiceTest {
         Order order = new Order(UUID.randomUUID(), null, 100.0, new ArrayList<>());
 
         // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> orderService.addOrder(order));
+        assertThrows(IllegalArgumentException.class, () -> orderService.addOrder(order), "Order should have a user");
     }
 
     @Test
@@ -109,7 +110,7 @@ class OrderServiceTest {
     void getOrders_afterAddingInvalidOrder_shouldReturnEmptyList() {
         // Arrange
         Order order = new Order(UUID.randomUUID(), null, 100.0, new ArrayList<>());
-        orderService.addOrder(order);
+        try { orderService.addOrder(order); } catch (IllegalArgumentException ignored) {}
 
         // Act
         ArrayList<Order> orders = orderService.getOrders();
@@ -177,7 +178,7 @@ class OrderServiceTest {
         UUID orderId = UUID.randomUUID();
 
         // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> orderService.deleteOrderById(orderId));
+        assertThrows(HttpStatusCodeException.class, () -> orderService.deleteOrderById(orderId));
     }
 
     @Test
