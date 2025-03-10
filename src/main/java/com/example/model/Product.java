@@ -1,6 +1,6 @@
 package com.example.model;
 
-import interfaces.Identifiable;
+import com.example.interfaces.Identifiable;
 
 import java.util.UUID;
 

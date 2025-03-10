@@ -1,6 +1,6 @@
 package com.example.model;
 
-import interfaces.Identifiable;
+import com.example.interfaces.Identifiable;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

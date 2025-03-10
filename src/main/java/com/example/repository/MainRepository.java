@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import interfaces.Identifiable;
+import com.example.interfaces.Identifiable;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
