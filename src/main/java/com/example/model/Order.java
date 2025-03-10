@@ -1,5 +1,6 @@
 package com.example.model;
 
+import interfaces.Identifiable;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -8,7 +9,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Component
-public class Order {
+public class Order implements Identifiable {
     private UUID id;
     private UUID userId;
     private double totalPrice;

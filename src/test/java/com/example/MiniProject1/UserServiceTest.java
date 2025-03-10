@@ -9,6 +9,7 @@ import com.example.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -90,16 +91,23 @@ class UserServiceTest {
     @Test
     void getUsers_afterAddingInvalidUser_shouldNotReturnInvalidUser() {
         // Arrange
+        int currentUserCount = userService.getUsers().size();
+
         User user1 = new User(UUID.randomUUID(), "Omar Tamer");
         User user2 = new User(UUID.randomUUID(), null);
         userService.addUser(user1);
 
         // Act
-        userService.addUser(user2);
-        ArrayList<User> result = userService.getUsers();
+        try {
+            userService.addUser(user2);
+            fail("Expected HttpClientErrorException to be thrown");
+        } catch (HttpClientErrorException e) {
+            // Exception is expected, continue with assertions
+        }
 
         // Assert
-        assertEquals(1, result.size());
+        ArrayList<User> result = userService.getUsers();
+        assertEquals(currentUserCount + 1, result.size());
         assertTrue(result.contains(user1));
         assertFalse(result.contains(user2));
     }
@@ -212,8 +220,11 @@ class UserServiceTest {
         User user = new User(UUID.randomUUID(), "Test User 8");
         userService.addUser(user);
 
-        Cart cart = cartService.getCartByUserId(user.getId());
+        Cart cart = new Cart(user.getId());
+        cartService.addCart(cart);
+
         Product product = new Product("Test Product", 100.0);
+
         cartService.addProductToCart(cart.getId(), product);
 
         // Act
@@ -258,9 +269,18 @@ class UserServiceTest {
         User user = new User(UUID.randomUUID(), "Test User 10");
         userService.addUser(user);
 
-        Cart cart = cartService.getCartByUserId(user.getId());
-        Product product = new Product("Test Product", 100.0);
-        cartService.addProductToCart(cart.getId(), product);
+        Product product1 = new Product("Test Product 1", 100.0);
+        Product product2 = new Product("Test Product 2", 200.0);
+        Product product3 = new Product("Test Product 3", 300.0);
+
+        Cart cart = new Cart(user.getId());
+
+        cartService.addProductToCart(user.getId(), product1);
+        cartService.addProductToCart(user.getId(), product2);
+        cartService.addProductToCart(user.getId(), product3);
+
+
+        cartService.addCart(cart);
 
         // Act
         userService.emptyCart(user.getId());
