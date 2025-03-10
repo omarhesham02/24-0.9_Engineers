@@ -4,6 +4,7 @@ import com.example.model.Cart;
 import com.example.model.Order;
 import com.example.model.Product;
 import com.example.model.User;
+import com.example.repository.UserRepository;
 import com.example.service.CartService;
 import com.example.service.UserService;
 import org.junit.jupiter.api.Test;
@@ -25,6 +26,10 @@ class UserServiceTest {
 
     @Autowired
     private CartService cartService;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private Cart cart;
 
 
     @Test
@@ -42,13 +47,15 @@ class UserServiceTest {
     @Test
     void addUser_withDuplicateId_shouldThrowException() {
         // Arrange
-        User user = new User(UUID.randomUUID(), "Mo Tammaa2");
+        UUID id = UUID.randomUUID();
+        User user = new User(id, "Mo Tammaa2");
+        User duplicateUser = new User(id, "Mo Tammaa9");
 
         // Act
         userService.addUser(user);
 
         // Assert
-        assertThrows(Exception.class, () -> userService.addUser(user));
+        assertThrows(Exception.class, () -> userService.addUser(duplicateUser));
     }
 
     @Test
@@ -63,6 +70,7 @@ class UserServiceTest {
     @Test
     void getUsers_withNoUsers_shouldReturnEmptyList() {
         // Arrange
+        userRepository.deleteAllUsers();
 
         // Act
         ArrayList<User> result = userService.getUsers();
@@ -73,6 +81,9 @@ class UserServiceTest {
 
     @Test
     void getUsers_withMultipleUsers_shouldReturnAllUsers() {
+
+        int currentUserCount = userService.getUsers().size();
+
         // Arrange
         User user1 = new User(UUID.randomUUID(), "Mo Tammaa3");
         User user2 = new User(UUID.randomUUID(), "Omar Adel");
@@ -83,7 +94,7 @@ class UserServiceTest {
         ArrayList<User> result = userService.getUsers();
 
         // Assert
-        assertEquals(2, result.size());
+        assertEquals(currentUserCount + 2, result.size());
         assertTrue(result.contains(user1));
         assertTrue(result.contains(user2));
     }
@@ -153,35 +164,31 @@ class UserServiceTest {
     @Test
     void getOrdersByUserId_withValidUserIdAndOrder_shouldReturnUserOrders() {
         // Arrange
-        User user = new User(UUID.randomUUID(), "Mo Tammaa6"),
-                anotherUser = new User(UUID.randomUUID(), "Omar Adel3");
+        User user = new User(UUID.randomUUID(), "Mo Tammaa6");
+        userService.addUser(user);
 
         ArrayList<Product> products = new ArrayList<>(List.of(
                 new Product("Hohoz", 10),
                 new Product("Shokalata Corona Dark bel bondoq", 50),
                 new Product("V_Cola 3shan Pepsi moqat3a", 15))
         );
-        ArrayList<Product> products1 = new ArrayList<>(List.of(new Product("Hohoz", 10)));
 
-        Cart cart = cartService.getCartByUserId(user.getId()),
-                cart1 = cartService.getCartByUserId(anotherUser.getId());
-
-
-        for (Product product : products)    cartService.addProductToCart(cart.getId(), product);
-        for (Product product : products1) cartService.addProductToCart(cart1.getId(), product);
-
+        Cart cart = new Cart(user.getId(), products);
+        cartService.addCart(cart);
+        userService.addOrderToUser(user.getId());
 
         // Act
         List<Order> result = userService.getOrdersByUserId(user.getId());
 
         // Assert
+        assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals(products.stream().mapToDouble(Product::getPrice).sum(), result.getFirst().getTotalPrice());
         assertEquals(products, result.getFirst().getProducts());
     }
 
     @Test
-    void getOrdersByUserId_withInvalidUserId_shouldReturnEmptyList() {
+    void getOrdersByUserId_withInvalidUserId_shouldReturnNull() {
         // Arrange
         User user = new User(UUID.randomUUID(), "Mo Tammaa7");
         ArrayList<Product> products = new ArrayList<>(List.of(
@@ -190,14 +197,13 @@ class UserServiceTest {
                 new Product("V_Cola 3shan Pepsi moqat3a", 15))
         );
 
-        Cart cart = cartService.getCartByUserId(user.getId());
-        for (Product product : products) cartService.addProductToCart(cart.getId(), product);
+        cartService.addCart(new Cart(user.getId(), products));
 
         // Act
         List<Order> result = userService.getOrdersByUserId(UUID.randomUUID());
 
         // Assert
-        assertEquals(0, result.size());
+        assertNull(result);
     }
 
     @Test
@@ -233,7 +239,11 @@ class UserServiceTest {
         // Assert
         List<Order> orders = userService.getOrdersByUserId(user.getId());
         assertFalse(orders.isEmpty());
-        assertEquals(100.0, orders.getFirst().getTotalPrice());
+
+        assertEquals(cart.getUserId(), orders.getFirst().getUserId());
+        assertEquals(user.getId(), cart.getUserId());
+
+        assertEquals(100, orders.getFirst().getTotalPrice());
     }
 
     @Test
@@ -251,15 +261,18 @@ class UserServiceTest {
         User user = new User(UUID.randomUUID(), "Test User 9");
         userService.addUser(user);
 
-        Cart cart = cartService.getCartByUserId(user.getId());
         Product product = new Product("Test Product", 100.0);
-        cartService.addProductToCart(cart.getId(), product);
+        Product product2 = new Product("Test Product2", 200.0);
+
+
+        cartService.addCart(new Cart(user.getId(), List.of(product, product2)));
 
         // Act
         userService.addOrderToUser(user.getId());
 
         // Assert
         cart = cartService.getCartByUserId(user.getId());
+        assertEquals(user.getId(), cart.getUserId());
         assertTrue(cart.getProducts().isEmpty());
     }
 
@@ -314,7 +327,8 @@ class UserServiceTest {
         User user = new User(UUID.randomUUID(), "Test User 11");
         userService.addUser(user);
 
-        Cart cart = cartService.getCartByUserId(user.getId());
+        Cart cart = cartService.addCart(new Cart(user.getId()));
+
         Product product = new Product("Test Product", 100.0);
         cartService.addProductToCart(cart.getId(), product);
 

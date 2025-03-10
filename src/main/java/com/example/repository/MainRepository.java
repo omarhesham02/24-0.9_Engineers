@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.UUID;
 
 import com.example.interfaces.Identifiable;
 import org.springframework.context.annotation.Primary;
@@ -35,6 +36,13 @@ public abstract class MainRepository<T extends Identifiable> {
         } catch (IOException e) {
             throw new RuntimeException("Failed to read from JSON file", e);
         }
+    }
+
+    public T findById(UUID id) {
+        return findAll().stream()
+                .filter(data -> data.getId().equals(id))
+                .findFirst()
+                .orElse(null);
     }
 
     public void saveAll(ArrayList<T> data) {
