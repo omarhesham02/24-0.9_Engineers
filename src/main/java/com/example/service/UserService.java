@@ -72,8 +72,6 @@ public class UserService extends MainService<User> {
         return userRepository.getOrdersByUserId(userId);
     }
 
-
-    // TODO: Check addOrderToUser(UUID userId) method
     public void addOrderToUser(UUID userId) {
         if (userId == null)
             throw new IllegalArgumentException("User ID cannot be null");
@@ -94,11 +92,19 @@ public class UserService extends MainService<User> {
     }
 
     public void emptyCart(UUID userId) {
+
         if (userId == null) {
             throw new IllegalArgumentException("User ID cannot be null");
         }
 
+        User user = userRepository.getUserById(userId);
+
+        if (user == null) {
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "User with this ID does not exist");
+        }
+
         Cart cart = cartRepository.getCartByUserId(userId);
+
         if (cart == null) {
             throw new HttpClientErrorException(HttpStatus.NOT_FOUND, "Cart not found");
         }
