@@ -50,18 +50,13 @@ public class CartService extends MainService<Cart> {
         return cartRepository.getCartByUserId(userId);
     }
 
-    public void addProductToCart(UUID userId, Product product) {
+    public void addProductToCart(UUID cartId, Product product) {
 
         if (product == null) {
             throw new IllegalArgumentException("Product cannot be null");
         }
 
-        Cart cart = cartRepository.getCartByUserId(userId);
-
-        if (cart == null) {
-            cart = new Cart(UUID.randomUUID(), userId, new ArrayList<>());
-            cartRepository.addCart(cart);
-        }
+        Cart cart = cartRepository.getCartById(cartId);
 
         cartRepository.addProductToCart(cart.getId(), product);
     }
