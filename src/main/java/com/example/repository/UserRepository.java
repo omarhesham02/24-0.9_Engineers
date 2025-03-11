@@ -1,11 +1,11 @@
 package com.example.repository;
 
+import com.example.model.Cart;
 import com.example.model.Order;
 import com.example.model.User;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.client.HttpClientErrorException;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -13,9 +13,11 @@ import java.util.UUID;
 public class UserRepository extends MainRepository<User> {
 
     private final OrderRepository orderRepository;
+    private final CartRepository cartRepository;
 
-    public UserRepository(OrderRepository orderRepository) {
+    public UserRepository(OrderRepository orderRepository, CartRepository cartRepository) {
         this.orderRepository = orderRepository;
+        this.cartRepository = cartRepository;
     }
 
     @Override
@@ -62,13 +64,18 @@ public class UserRepository extends MainRepository<User> {
     }
 
     public void deleteUser(UUID userId) throws HttpClientErrorException {
-        ArrayList<User> users = findAll();
-        users.removeIf(user -> user.getId().equals(userId));
-        saveAll(users);
+
+        Cart cart = cartRepository.getCartByUserId(userId);
+
+        if (cart != null) {
+            cartRepository.deleteCartById(cart.getId());
+        }
+
+        deleteById(userId);
     }
 
     public void deleteAllUsers() {
-        saveAll(new ArrayList<>());
+        clearAll();
     }
 
 

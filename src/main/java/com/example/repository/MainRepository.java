@@ -74,5 +74,11 @@ public abstract class MainRepository<T extends Identifiable> {
 
     public void clearAll() { saveAll(new ArrayList<>()); }
 
+    public void deleteById(UUID id) {
+        ArrayList<T> allData = findAll();
+        allData.removeIf(data -> data.getId().equals(id));
+        saveAll(allData);
+    }
+
 
 }

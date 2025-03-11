@@ -67,7 +67,6 @@ public class UserController {
         }
     }
 
-    //TODO: Implement emptyCart method for UserController
     @DeleteMapping("/{userId}/emptyCart")
     public String emptyCart(@PathVariable UUID userId) {
         try {

@@ -33,8 +33,12 @@ public class UserService extends MainService<User> {
     }
 
     public User addUser(User user) {
-        if (user.getId() == null || user.getName() == null) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "User cannot be null");
+        if (user.getId() == null) {
+            user.setId(UUID.randomUUID());
+        }
+
+        if (user.getName() == null || user.getName().trim().isEmpty()) {
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "User name cannot be null or empty!");
         }
 
         User existingUser = userRepository.getUserById(user.getId());
@@ -59,6 +63,7 @@ public class UserService extends MainService<User> {
     }
 
     public List<Order> getOrdersByUserId(UUID userId) {
+
         if (userId == null) {
             throw new IllegalArgumentException("User ID cannot be null");
         }
@@ -148,12 +153,12 @@ public class UserService extends MainService<User> {
             throw new HttpClientErrorException(HttpStatus.NOT_FOUND, "User not found");
         }
 
-        userRepository.deleteUser(userId);
-
         Cart cart = cartRepository.getCartByUserId(userId);
 
         if (cart != null) {
             cartRepository.deleteCartById(cart.getId());
         }
+
+        userRepository.deleteUser(userId);
     }
 }

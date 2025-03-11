@@ -4,12 +4,11 @@ import com.example.model.Cart;
 import com.example.model.Order;
 import com.example.model.Product;
 import com.example.model.User;
+import com.example.repository.OrderRepository;
 import com.example.repository.UserRepository;
 import com.example.service.CartService;
 import com.example.service.UserService;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.web.client.HttpClientErrorException;
@@ -20,6 +19,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
 class UserServiceTest {
 
@@ -34,14 +34,16 @@ class UserServiceTest {
     private Cart cart;
 
     private ArrayList<User> usersJSON;
+    @Autowired
+    private OrderRepository orderRepository;
 
-    @BeforeEach
+    @BeforeAll
     void backupData() {
         usersJSON = new ArrayList<>(userService.getUsers());
         userRepository.saveAll(new ArrayList<>());
     }
 
-    @AfterEach
+    @AfterAll
     void restoreData() {
         userRepository.saveAll(usersJSON);
     }
@@ -206,13 +208,18 @@ class UserServiceTest {
     void getOrdersByUserId_withInvalidUserId_shouldReturnNull() {
         // Arrange
         User user = new User(UUID.randomUUID(), "Mo Tammaa7");
+        userService.addUser(user);
+
+
         ArrayList<Product> products = new ArrayList<>(List.of(
                 new Product("Hohoz", 10),
                 new Product("Shokalata Corona Dark bel bondoq", 50),
                 new Product("V_Cola 3shan Pepsi moqat3a", 15))
         );
 
-        cartService.addCart(new Cart(user.getId(), products));
+        Cart cart = new Cart(user.getId(), products);
+        cartService.addCart(cart);
+
 
         // Act
         List<Order> result = userService.getOrdersByUserId(UUID.randomUUID());
@@ -414,4 +421,58 @@ class UserServiceTest {
         assertThrows(IllegalArgumentException.class, () -> userService.deleteUserById(null));
     }
 
+
+    // --- Additional Tests ---
+
+    @Test
+    void deleteUserById_shouldEmptyUserCart_whenUserExists() {
+        // Arrange
+        User user = new User(UUID.randomUUID(), "Test User 14");
+        userService.addUser(user);
+
+        Cart cart = new Cart(user.getId());
+        cartService.addCart(cart);
+
+        // Act
+        userService.deleteUserById(user.getId());
+
+        // Assert
+        assertNull(userService.getUserById(user.getId()));
+        assertTrue(cartService.getCartByUserId(user.getId()).getProducts().isEmpty());
+
+    }
+
+    @Test
+    void deleteUserById_shouldNotDeleteUserOrders_whenUserExists() {
+        // Arrange
+
+        UUID userId = UUID.randomUUID();
+
+        User user = new User(userId, "Test User 15");
+        userService.addUser(user);
+
+        Cart cart = new Cart(user.getId());
+        cartService.addCart(cart);
+
+        Product product = new Product("Test Product", 100.0);
+        Product product2 = new Product("Test Product2", 200.0);
+
+        cartService.addProductToCart(cart.getId(), product);
+        cartService.addProductToCart(cart.getId(), product2);
+
+        userService.addOrderToUser(user.getId());
+
+        // Act
+        userService.deleteUserById(user.getId());
+
+        // Assert
+        assertNull(userService.getUserById(userId));
+        assertNotNull(cartService.getCartByUserId(user.getId()));
+
+        // Verify that the order with the user ID still exists
+        List<Order> orders = orderRepository.getOrdersByUserId(user.getId());
+
+        assertNotNull(orders);
+        assertEquals(1, orders.size());
+    }
 }

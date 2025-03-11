@@ -2,17 +2,13 @@ package com.example.repository;
 
 import com.example.model.Cart;
 import com.example.model.Product;
-import com.example.model.User;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Repository
 public class CartRepository extends MainRepository<Cart> {
-
-    public CartRepository() {}
 
     @Override
     protected String getDataPath() {
@@ -86,11 +82,6 @@ public class CartRepository extends MainRepository<Cart> {
     }
 
     public void deleteCartById(UUID cartId){
-        List<Cart> carts = findAll();
-        boolean removed = carts.removeIf(cart -> cart.getId().equals(cartId));
-        if (!removed) {
-            throw new IllegalArgumentException("Cart with ID " + cartId + " not found");
-        }
-        saveAll(new ArrayList<>(carts));
+        deleteById(cartId);
     }
 }

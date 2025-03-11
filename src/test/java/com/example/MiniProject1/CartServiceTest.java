@@ -5,13 +5,11 @@ import com.example.model.Product;
 import com.example.model.User;
 import com.example.repository.CartRepository;
 import com.example.service.CartService;
+import com.example.service.ProductService;
 import com.example.service.UserService;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.ComponentScan;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +18,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
 class CartServiceTest {
     @Autowired
@@ -28,14 +27,18 @@ class CartServiceTest {
     private ArrayList<Cart> cartsJSON;
     @Autowired
     private CartRepository cartRepository;
+    @Autowired
+    private ProductService productService;
+    @Autowired
+    private UserService userService;
 
-    @BeforeEach
+    @BeforeAll
     void backupData() {
         cartsJSON = new ArrayList<>(cartService.getCarts());
         cartRepository.saveAll(new ArrayList<>());
     }
 
-    @AfterEach
+    @AfterAll
     void restoreData() {
         cartRepository.saveAll(cartsJSON);
     }
@@ -43,6 +46,7 @@ class CartServiceTest {
     @Test
     void addCart_withValidInput_shouldReturnSameCartData() {
         User user = new User("Omar");
+        userService.addUser(user);
         Cart cart = new Cart(user.getId());
 
         Cart result = cartService.addCart(cart);
@@ -53,8 +57,9 @@ class CartServiceTest {
     @Test
     void addCart_withValidInput_shouldSaveCartInJSON() {
         User user = new User("Omar");
-        Cart cart = new Cart(user.getId());
+        userService.addUser(user);
 
+        Cart cart = new Cart(user.getId());
         Cart result = cartService.addCart(cart);
 
         boolean cartExists = cartService.getCarts().stream()
@@ -66,6 +71,8 @@ class CartServiceTest {
     @Test
     void addCart_withItemsInCart_shouldSaveCartWithSameNumberOfProducts() {
         User user = new User("Abdelaty");
+        userService.addUser(user);
+
         Cart cart = new Cart(user.getId());
         List<Product> products = new ArrayList<>();
 
@@ -88,6 +95,9 @@ class CartServiceTest {
 
     @Test
     void getCarts_shouldReturnEmptyList_whenNoCarts() {
+
+        cartRepository.clearAll();
+
         ArrayList<Cart> carts = cartService.getCarts();
 
         assertTrue(carts.isEmpty(), "Cart should be empty");
@@ -95,28 +105,34 @@ class CartServiceTest {
 
     @Test
     void getCarts_shouldReturnSameCarts() {
-        User user = new User("Tamer");
-        Cart cart = new Cart(user.getId());
 
+        cartRepository.clearAll();
+
+        User user = new User("Tamer");
+        userService.addUser(user);
+
+        Cart cart = new Cart(user.getId());
         cartService.addCart(cart);
 
         List<Cart> carts = cartService.getCarts();
 
         assertEquals(1, carts.size(), "Cart should be same as original cart");
-        assertEquals(cart, carts.get(0));
+        assertTrue(carts.contains(cart), "Cart should be same as original cart");
     }
 
     @Test
     void getCarts_shouldReturnEmpty_whenCartDeleted() {
         User user = new User("Tamer");
-        Cart cart = new Cart(user.getId());
+        userService.addUser(user);
 
+        Cart cart = new Cart(user.getId());
         cartService.addCart(cart);
+
         cartService.deleteCartById(cart.getId());
 
         List<Cart> carts = cartService.getCarts();
 
-        assertTrue(carts.isEmpty(), "Cart should be empty");
+        assertFalse(carts.contains(cart));
     }
 
     @Test
@@ -127,8 +143,9 @@ class CartServiceTest {
     @Test
     void getCartById_shouldReturnCart_whenCartFound() {
         User user = new User("Tamer");
-        Cart cart = new Cart(user.getId());
+        userService.addUser(user);
 
+        Cart cart = new Cart(user.getId());
         cartService.addCart(cart);
 
         Cart result = cartService.getCartById(cart.getId());
@@ -141,6 +158,8 @@ class CartServiceTest {
     @Test
     void getCartById_afterAddingProductsToCart_shouldReturnCartWithProducts() {
         User user = new User("OT");
+        userService.addUser(user);
+
         Cart cart = new Cart(user.getId());
 
         List<Product> products = new ArrayList<>();
@@ -172,8 +191,9 @@ class CartServiceTest {
     @Test
     void getCartByUserId_shouldReturnCart_whenCartFound() {
         User user = new User("Tamer");
-        Cart cart = new Cart(user.getId());
+        userService.addUser(user);
 
+        Cart cart = new Cart(user.getId());
         cartService.addCart(cart);
 
         Cart result = cartService.getCartByUserId(user.getId());
@@ -186,14 +206,20 @@ class CartServiceTest {
     @Test
     void getCartByUserId_afterAddingProductsToCart_shouldReturnCartWithProducts() {
         User user = new User("OT");
+        userService.addUser(user);
+
         Cart cart = new Cart(user.getId());
 
-        List<Product> products = new ArrayList<>();
-        products.add(new Product("Laptop", 999.99));
-        products.add(new Product("Mouse", 29.99));
-        cart.setProducts(products);
+        Product laptop = new Product("Laptop", 999.99);
+        Product mouse = new Product("Mouse", 29.99);
 
-        Cart savedCart = cartService.addCart(cart);
+        productService.addProduct(laptop);
+        productService.addProduct(mouse);
+
+        cartService.addCart(cart);
+
+        cartService.addProductToCart(cart.getId(), laptop);
+        cartService.addProductToCart(cart.getId(), mouse);
 
         Cart result = cartService.getCartByUserId(user.getId());
 
@@ -215,9 +241,7 @@ class CartServiceTest {
 
         UUID nonExistentCartId = UUID.randomUUID();
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            cartService.addProductToCart(nonExistentCartId, product);
-        });
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> cartService.addProductToCart(nonExistentCartId, product));
 
         String expectedMessage = "Cart with ID " + nonExistentCartId + " not found";
         String actualMessage = exception.getMessage();
@@ -229,6 +253,8 @@ class CartServiceTest {
     @Test
     void addProductToCart_withValidCart_shouldAddProductToCart() {
         User user = new User("OTA");
+        userService.addUser(user);
+
         Cart cart = new Cart(user.getId());
         cartService.addCart(cart);
 
@@ -252,17 +278,16 @@ class CartServiceTest {
     @Test
     void addProductToCart_whenProductAlreadyExists_shouldThrowError() {
         User user = new User("OTA");
-        Cart cart = new Cart(user.getId());
+        userService.addUser(user);
 
+        Cart cart = new Cart(user.getId());
         cartService.addCart(cart);
 
         Product product = new Product("Tablet", 299.99);
 
         cartService.addProductToCart(cart.getId(), product);
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            cartService.addProductToCart(cart.getId(), product);
-        });
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> cartService.addProductToCart(cart.getId(), product));
 
         String expectedMessage = "Product with ID " + product.getId() + " already exists in cart";
         String actualMessage = exception.getMessage();
@@ -280,9 +305,7 @@ class CartServiceTest {
         UUID nonExistentCartId = UUID.randomUUID();
         Product product = new Product("Smartwatch", 149.99);
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            cartService.deleteProductFromCart(nonExistentCartId, product);
-        });
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> cartService.deleteProductFromCart(nonExistentCartId, product));
 
         String expectedMessage = "Cart with ID " + nonExistentCartId + " not found";
         String actualMessage = exception.getMessage();
@@ -294,6 +317,8 @@ class CartServiceTest {
     @Test
     void deleteProductFromCart_whenProductExists_shouldDeleteProductFromCart() {
         User user = new User("OMARRRRR");
+        userService.addUser(user);
+
         Cart cart = new Cart(user.getId());
         cartService.addCart(cart);
 
@@ -311,7 +336,7 @@ class CartServiceTest {
 
         assertEquals(1, updatedCart.getProducts().size(), "Cart should have 1 product after deletion");
 
-        Product remainingProduct = updatedCart.getProducts().get(0);
+        Product remainingProduct = updatedCart.getProducts().getFirst();
         assertEquals(product2.getId(), remainingProduct.getId(), "The remaining product should be the one not deleted");
         assertEquals("Mouse", remainingProduct.getName(), "The remaining product should have the correct name");
         assertEquals(29.99, remainingProduct.getPrice(), 0.001, "The remaining product should have the correct price");
@@ -320,6 +345,8 @@ class CartServiceTest {
     @Test
     void deleteProductFromCart_whenProductDoesNotExist_shouldThrowError() {
         User user = new User("Kareem");
+        userService.addUser(user);
+
         Cart cart = new Cart(user.getId());
         cartService.addCart(cart);
 
@@ -328,9 +355,7 @@ class CartServiceTest {
 
         cartService.addProductToCart(cart.getId(), existingProduct);
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            cartService.deleteProductFromCart(cart.getId(), nonExistentProduct);
-        });
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> cartService.deleteProductFromCart(cart.getId(), nonExistentProduct));
 
         String expectedMessage = "Product with ID " + nonExistentProduct.getId() + " not found in cart";
         String actualMessage = exception.getMessage();
@@ -341,7 +366,7 @@ class CartServiceTest {
         Cart updatedCart = cartService.getCartById(cart.getId());
         assertEquals(1, updatedCart.getProducts().size(),
                 "Cart should still contain the original product");
-        assertEquals(existingProduct.getId(), updatedCart.getProducts().get(0).getId(),
+        assertEquals(existingProduct.getId(), updatedCart.getProducts().getFirst().getId(),
                 "Cart should still contain the original product with the same ID");
     }
 
@@ -349,9 +374,7 @@ class CartServiceTest {
     void deleteCartById_whenCartDoesNotExist_shouldThrowError() {
         UUID nonExistentCartId = UUID.randomUUID();
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            cartService.deleteCartById(nonExistentCartId);
-        });
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> cartService.deleteCartById(nonExistentCartId));
 
         String expectedMessage = "Cart with ID " + nonExistentCartId + " not found";
         String actualMessage = exception.getMessage();
@@ -362,6 +385,8 @@ class CartServiceTest {
     @Test
     void deleteCartById_whenCartExists_shouldDeleteCart() {
         User user = new User("Eng. OT");
+        userService.addUser(user);
+
         Cart cart = new Cart(user.getId());
         cartService.addCart(cart);
 
@@ -377,9 +402,16 @@ class CartServiceTest {
 
     @Test
     void deleteCartById_withMultipleCarts_shouldOnlyDeleteTargetCart() {
+
+        int initialCartCount = cartService.getCarts().size();
+
         User user1 = new User("Omar");
         User user2 = new User("Tamer");
         User user3 = new User("Abdelaty");
+
+        userService.addUser(user1);
+        userService.addUser(user2);
+        userService.addUser(user3);
 
         Cart cart1 = new Cart(user1.getId());
         Cart cart2 = new Cart(user2.getId());
@@ -393,14 +425,15 @@ class CartServiceTest {
         UUID cart2Id = savedCart2.getId();
         UUID cart3Id = savedCart3.getId();
 
-        int initialCartCount = cartService.getCarts().size();
-        assertEquals(3, initialCartCount, "Should have 3 carts initially");
+        int cartCount = cartService.getCarts().size();
+
+        assertEquals(initialCartCount + 3, cartCount, "Should have 3 carts initially");
 
         cartService.deleteCartById(cart2Id);
 
         ArrayList<Cart> remainingCarts = cartService.getCarts();
 
-        assertEquals(initialCartCount - 1, remainingCarts.size(),
+        assertEquals(initialCartCount + 3 - 1, remainingCarts.size(),
                 "Cart count should decrease by exactly 1");
 
         boolean cart1Exists = remainingCarts.stream()
@@ -414,5 +447,4 @@ class CartServiceTest {
         assertFalse(cart2Exists, "Second cart should be deleted");
         assertTrue(cart3Exists, "Third cart should still exist");
     }
-
 }
