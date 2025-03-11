@@ -56,8 +56,6 @@ public class ProductRepository extends MainRepository<Product> {
     }
 
     public void deleteProductById(UUID productId) {
-        ArrayList<Product> products = findAll();
-        products.removeIf(product -> product.getId() != null && product.getId().equals(productId));
-        overrideData(products);
+        deleteById(productId);
     }
 }
