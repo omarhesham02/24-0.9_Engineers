@@ -22,17 +22,24 @@ public class ProductService extends MainService<Product> {
 
 
     public Product addProduct(Product product) {
-        if (product == null || product.getName() == null || product.getName().trim().isEmpty()) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Product name cannot be null or empty!");
+
+
+        if (product == null) {
+            throw new IllegalArgumentException("Product cannot be null!");
         }
 
         if (product.getId() == null) {
             product.setId(UUID.randomUUID());
         }
 
+        if (product.getName() == null || product.getName().trim().isEmpty()) {
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Product name cannot be null or empty!");
+        }
+
         if (product.getPrice() < 0) {
             throw new IllegalArgumentException("Price cannot be negative!");
         }
+
         if (product.getPrice() == 0){
             throw new IllegalArgumentException("Price cannot be zero!");
         }
@@ -43,8 +50,7 @@ public class ProductService extends MainService<Product> {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Product with this ID already exists");
         }
 
-        productRepository.addProduct(product);
-        return product;
+        return productRepository.addProduct(product);
     }
 
 
@@ -54,12 +60,9 @@ public class ProductService extends MainService<Product> {
 
     public Product getProductById(UUID productId) {
         if (productId == null) {
-            throw new IllegalArgumentException("Product ID not found!");
+            throw new IllegalArgumentException("Product ID cannot be null!");
         }
-        Product product = productRepository.getProductById(productId);
-        if (product == null) {
-            throw new IllegalArgumentException("Product ID not found!");
-        }
+
         return productRepository.getProductById(productId);
     }
 
@@ -91,8 +94,8 @@ public class ProductService extends MainService<Product> {
         if (discount == null) {
             throw new IllegalArgumentException("Discount value must not be null!");
         }
-        if (discount < 0.01 || discount > 99.99) {
-            throw new IllegalArgumentException("Discount must be between 0.01% and 99.99%!");
+        if (discount < 0 || discount > 100) {
+            throw new IllegalArgumentException("Discount value must be between 0% and 100%!");
         }
         if (productIds == null || productIds.isEmpty()) {
             throw new IllegalArgumentException("Product ID list must not be empty!");

@@ -2,9 +2,7 @@ package com.example.MiniProject1;
 
 import com.example.model.User;
 import com.example.repository.OrderRepository;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import com.example.service.OrderService;
@@ -16,6 +14,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
 class OrderServiceTest {
 
@@ -26,13 +25,13 @@ class OrderServiceTest {
 
     private ArrayList<Order> ordersJSON;
 
-    @BeforeEach
+    @BeforeAll
     void backupData() {
         ordersJSON = new ArrayList<>(orderService.getOrders());
         orderRepository.clearAll();
     }
 
-    @AfterEach
+    @AfterAll
     void restoreData() {
         orderRepository.saveAll(ordersJSON);
     }
@@ -99,6 +98,10 @@ class OrderServiceTest {
 
     @Test
     void getOrders_noOrders_shouldReturnEmptyList() {
+
+        // Arrange
+        orderRepository.clearAll();
+
         // Act
         ArrayList<Order> orders = orderService.getOrders();
 
@@ -109,6 +112,7 @@ class OrderServiceTest {
     @Test
     void getOrders_afterAddingInvalidOrder_shouldReturnEmptyList() {
         // Arrange
+        orderRepository.clearAll();
         Order order = new Order(UUID.randomUUID(), null, 100.0, new ArrayList<>());
         try { orderService.addOrder(order); } catch (IllegalArgumentException ignored) {}
 

@@ -13,17 +13,12 @@ public class ProductRepository extends MainRepository<Product> {
         return "src/main/java/com/example/data/products.json";
     }
 
-
-
     @Override
     protected Class<Product[]> getArrayType() {
         return Product[].class;
     }
 
     public Product addProduct(Product product) {
-        if (product.getId() == null) {
-            product.setId(UUID.randomUUID());
-        }
         save(product);
         return product;
     }
@@ -36,17 +31,17 @@ public class ProductRepository extends MainRepository<Product> {
     }
 
     public Product updateProduct(UUID productId, String newName, double newPrice) {
-        ArrayList<Product> products = findAll();
-        for (Product product : products) {
-            if (product.getId() != null && product.getId().equals(productId)) {
-                product.setName(newName);
-                product.setPrice(newPrice);
-                overrideData(products);
-                return product;
-            }
-        }
-        return null;
+        Product product = getProductById(productId);
+        product.setName(newName);
+        product.setPrice(newPrice);
+
+        override(product);
+
+        return product;
+
     }
+
+
     public void applyDiscount(double discount, ArrayList<UUID> productIds) {
 
         for (UUID productId : productIds) {

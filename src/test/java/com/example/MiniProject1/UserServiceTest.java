@@ -7,9 +7,7 @@ import com.example.model.User;
 import com.example.repository.UserRepository;
 import com.example.service.CartService;
 import com.example.service.UserService;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.web.client.HttpClientErrorException;
@@ -20,6 +18,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
 class UserServiceTest {
 
@@ -35,13 +34,13 @@ class UserServiceTest {
 
     private ArrayList<User> usersJSON;
 
-    @BeforeEach
+    @BeforeAll
     void backupData() {
         usersJSON = new ArrayList<>(userService.getUsers());
         userRepository.saveAll(new ArrayList<>());
     }
 
-    @AfterEach
+    @AfterAll
     void restoreData() {
         userRepository.saveAll(usersJSON);
     }
