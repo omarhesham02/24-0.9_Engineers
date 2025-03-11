@@ -2,7 +2,9 @@ package com.example.service;
 
 import com.example.model.Cart;
 import com.example.model.Product;
+import com.example.model.User;
 import com.example.repository.CartRepository;
+import com.example.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,16 +15,30 @@ import java.util.UUID;
 public class CartService extends MainService<Cart> {
 
     private final CartRepository cartRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    public CartService(CartRepository cartRepository) {
+    public CartService(CartRepository cartRepository, UserRepository userRepository) {
         this.cartRepository = cartRepository;
+        this.userRepository = userRepository;
     }
 
     public Cart addCart(Cart cart) {
 
         if (cart == null) {
             throw new IllegalArgumentException("Cart cannot be null");
+        }
+
+        UUID userId = cart.getUserId();
+
+        if (userId == null) {
+            throw new IllegalArgumentException("Cart's User ID cannot be null");
+        }
+
+        User user = userRepository.getUserById(userId);
+
+        if (user == null) {
+            throw new IllegalArgumentException("Cannot add a cart to a nonexistent user. User with ID " + userId + " not found");
         }
 
         return cartRepository.addCart(cart);

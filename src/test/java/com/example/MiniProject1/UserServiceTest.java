@@ -205,13 +205,18 @@ class UserServiceTest {
     void getOrdersByUserId_withInvalidUserId_shouldReturnNull() {
         // Arrange
         User user = new User(UUID.randomUUID(), "Mo Tammaa7");
+        userService.addUser(user);
+
+
         ArrayList<Product> products = new ArrayList<>(List.of(
                 new Product("Hohoz", 10),
                 new Product("Shokalata Corona Dark bel bondoq", 50),
                 new Product("V_Cola 3shan Pepsi moqat3a", 15))
         );
 
-        cartService.addCart(new Cart(user.getId(), products));
+        Cart cart = new Cart(user.getId(), products);
+        cartService.addCart(cart);
+
 
         // Act
         List<Order> result = userService.getOrdersByUserId(UUID.randomUUID());

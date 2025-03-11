@@ -6,6 +6,7 @@ import com.example.model.User;
 import com.example.repository.CartRepository;
 import com.example.service.CartService;
 import com.example.service.ProductService;
+import com.example.service.UserService;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,6 +29,8 @@ class CartServiceTest {
     private CartRepository cartRepository;
     @Autowired
     private ProductService productService;
+    @Autowired
+    private UserService userService;
 
     @BeforeAll
     void backupData() {
@@ -43,6 +46,7 @@ class CartServiceTest {
     @Test
     void addCart_withValidInput_shouldReturnSameCartData() {
         User user = new User("Omar");
+        userService.addUser(user);
         Cart cart = new Cart(user.getId());
 
         Cart result = cartService.addCart(cart);
@@ -53,8 +57,9 @@ class CartServiceTest {
     @Test
     void addCart_withValidInput_shouldSaveCartInJSON() {
         User user = new User("Omar");
-        Cart cart = new Cart(user.getId());
+        userService.addUser(user);
 
+        Cart cart = new Cart(user.getId());
         Cart result = cartService.addCart(cart);
 
         boolean cartExists = cartService.getCarts().stream()
@@ -66,6 +71,8 @@ class CartServiceTest {
     @Test
     void addCart_withItemsInCart_shouldSaveCartWithSameNumberOfProducts() {
         User user = new User("Abdelaty");
+        userService.addUser(user);
+
         Cart cart = new Cart(user.getId());
         List<Product> products = new ArrayList<>();
 
@@ -102,8 +109,9 @@ class CartServiceTest {
         cartRepository.clearAll();
 
         User user = new User("Tamer");
-        Cart cart = new Cart(user.getId());
+        userService.addUser(user);
 
+        Cart cart = new Cart(user.getId());
         cartService.addCart(cart);
 
         List<Cart> carts = cartService.getCarts();
@@ -115,9 +123,11 @@ class CartServiceTest {
     @Test
     void getCarts_shouldReturnEmpty_whenCartDeleted() {
         User user = new User("Tamer");
-        Cart cart = new Cart(user.getId());
+        userService.addUser(user);
 
+        Cart cart = new Cart(user.getId());
         cartService.addCart(cart);
+
         cartService.deleteCartById(cart.getId());
 
         List<Cart> carts = cartService.getCarts();
@@ -133,8 +143,9 @@ class CartServiceTest {
     @Test
     void getCartById_shouldReturnCart_whenCartFound() {
         User user = new User("Tamer");
-        Cart cart = new Cart(user.getId());
+        userService.addUser(user);
 
+        Cart cart = new Cart(user.getId());
         cartService.addCart(cart);
 
         Cart result = cartService.getCartById(cart.getId());
@@ -147,6 +158,8 @@ class CartServiceTest {
     @Test
     void getCartById_afterAddingProductsToCart_shouldReturnCartWithProducts() {
         User user = new User("OT");
+        userService.addUser(user);
+
         Cart cart = new Cart(user.getId());
 
         List<Product> products = new ArrayList<>();
@@ -178,8 +191,9 @@ class CartServiceTest {
     @Test
     void getCartByUserId_shouldReturnCart_whenCartFound() {
         User user = new User("Tamer");
-        Cart cart = new Cart(user.getId());
+        userService.addUser(user);
 
+        Cart cart = new Cart(user.getId());
         cartService.addCart(cart);
 
         Cart result = cartService.getCartByUserId(user.getId());
@@ -192,6 +206,8 @@ class CartServiceTest {
     @Test
     void getCartByUserId_afterAddingProductsToCart_shouldReturnCartWithProducts() {
         User user = new User("OT");
+        userService.addUser(user);
+
         Cart cart = new Cart(user.getId());
 
         Product laptop = new Product("Laptop", 999.99);
@@ -237,6 +253,8 @@ class CartServiceTest {
     @Test
     void addProductToCart_withValidCart_shouldAddProductToCart() {
         User user = new User("OTA");
+        userService.addUser(user);
+
         Cart cart = new Cart(user.getId());
         cartService.addCart(cart);
 
@@ -260,8 +278,9 @@ class CartServiceTest {
     @Test
     void addProductToCart_whenProductAlreadyExists_shouldThrowError() {
         User user = new User("OTA");
-        Cart cart = new Cart(user.getId());
+        userService.addUser(user);
 
+        Cart cart = new Cart(user.getId());
         cartService.addCart(cart);
 
         Product product = new Product("Tablet", 299.99);
@@ -298,6 +317,8 @@ class CartServiceTest {
     @Test
     void deleteProductFromCart_whenProductExists_shouldDeleteProductFromCart() {
         User user = new User("OMARRRRR");
+        userService.addUser(user);
+
         Cart cart = new Cart(user.getId());
         cartService.addCart(cart);
 
@@ -324,6 +345,8 @@ class CartServiceTest {
     @Test
     void deleteProductFromCart_whenProductDoesNotExist_shouldThrowError() {
         User user = new User("Kareem");
+        userService.addUser(user);
+
         Cart cart = new Cart(user.getId());
         cartService.addCart(cart);
 
@@ -362,6 +385,8 @@ class CartServiceTest {
     @Test
     void deleteCartById_whenCartExists_shouldDeleteCart() {
         User user = new User("Eng. OT");
+        userService.addUser(user);
+
         Cart cart = new Cart(user.getId());
         cartService.addCart(cart);
 
@@ -383,6 +408,10 @@ class CartServiceTest {
         User user1 = new User("Omar");
         User user2 = new User("Tamer");
         User user3 = new User("Abdelaty");
+
+        userService.addUser(user1);
+        userService.addUser(user2);
+        userService.addUser(user3);
 
         Cart cart1 = new Cart(user1.getId());
         Cart cart2 = new Cart(user2.getId());
