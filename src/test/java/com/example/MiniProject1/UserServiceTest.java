@@ -242,10 +242,10 @@ class UserServiceTest {
         userService.addUser(user);
 
         Cart cart = new Cart(user.getId());
-        Product product = new Product("Test Product", 100.0);
-
-        cartService.addProductToCart(user.getId(), product);
         cartService.addCart(cart);
+
+        Product product = new Product("Test Product", 100.0);
+        cartService.addProductToCart(cart.getId(), product);
 
         // Act
         userService.addOrderToUser(user.getId());
@@ -302,12 +302,11 @@ class UserServiceTest {
 
         Cart cart = new Cart(user.getId());
 
-        cartService.addProductToCart(user.getId(), product1);
-        cartService.addProductToCart(user.getId(), product2);
-        cartService.addProductToCart(user.getId(), product3);
-
-
         cartService.addCart(cart);
+
+        cartService.addProductToCart(cart.getId(), product1);
+        cartService.addProductToCart(cart.getId(), product2);
+        cartService.addProductToCart(cart.getId(), product3);
 
         // Act
         userService.emptyCart(user.getId());
@@ -327,12 +326,18 @@ class UserServiceTest {
     }
 
     @Test
-    void emptyUserCart_ShouldThrowException_WhenCartDoesNotExist() {
+    void emptyUserCart_ShouldReturnEmptyCar_WhenCartDoesNotExist() {
         // Arrange
-        UUID nonExistentUserId = UUID.randomUUID();
+        User user = new User(UUID.randomUUID(), "Test User 14");
+        userService.addUser(user);
 
-        // Act & Assert
-        assertThrows(Exception.class, () -> userService.emptyCart(nonExistentUserId));
+        userService.emptyCart(user.getId());
+
+        Cart cart = cartService.getCartByUserId(user.getId());
+
+        assertNotNull(cart);
+        assertTrue(cart.getProducts().isEmpty());
+
     }
 
     @Test

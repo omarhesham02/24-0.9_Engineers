@@ -37,11 +37,19 @@ public class CartRepository extends MainRepository<Cart> {
         return findById(id);
     }
 
-    public Cart getCartByUserId(UUID userId){
-        return findAll().stream()
+
+    public Cart getCartByUserId(UUID userId) {
+        Cart existingCart = findAll().stream()
                 .filter(cart -> cart.getUserId().equals(userId))
                 .findFirst()
                 .orElse(null);
+
+        if (existingCart != null) {
+            return existingCart;
+        }
+
+        Cart newCart = new Cart(userId);
+        return addCart(newCart);
     }
 
     // There is possibly two approaches, one is to allow duplicates (since there is no

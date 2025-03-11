@@ -35,6 +35,12 @@ public class OrderRepository extends MainRepository<Order> {
     }
 
     public void deleteOrderById(UUID orderId){
+        ArrayList<Order> orders = findAll();
+        boolean removed = orders.removeIf(order -> order.getId().equals(orderId));
+        if (!removed) {
+            throw new IllegalArgumentException("Order not found");
+        }
 
+        saveAll(orders);
     }
 }

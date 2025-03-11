@@ -82,7 +82,7 @@ public class UserController {
     public String addProductToCart(@RequestParam UUID userId, @RequestParam UUID productId) {
         try {
             Product product = productService.getProductById(productId);
-            cartService.addProductToCart(userId, product);
+            cartService.addProductToCart(cartService.getCartByUserId(userId).getId(), product);
             return "Product added to cart";
         } catch (Exception e) {
             return "Failed to add product to cart";

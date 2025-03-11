@@ -397,7 +397,7 @@
  				.andExpect(MockMvcResultMatchers.status().isOk())
  				.andExpect(MockMvcResultMatchers.content().string("Product added to cart"));
  		assertTrue(getCarts().getLast().getUserId().equals(testUser14.getId()),"New Cart Should be created for user");
- 		assertEquals(testProduct.getId(), getCarts().getLast().getProducts().get(0).getClass(),"Product should be added correctly");
+ 		assertEquals(testProduct.getId(), getCarts().getLast().getProducts().get(0).getId(),"Product should be added correctly");
  	}
 
 
