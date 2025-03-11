@@ -4,7 +4,9 @@ import com.example.model.Order;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Repository
 public class OrderRepository extends MainRepository<Order> {
@@ -34,15 +36,13 @@ public class OrderRepository extends MainRepository<Order> {
         return findById(orderId);
     }
 
+    public List<Order> getOrdersByUserId(UUID userId) {
+        return findAll().stream()
+                .filter(order -> order.getUserId().equals(userId))
+                .collect(Collectors.toList());
+    }
+
     public void deleteOrderById(UUID orderId){
-        ArrayList<Order> orders = findAll();
-
-        boolean removed = orders.removeIf(order -> order.getId().equals(orderId));
-
-        if (!removed) {
-            throw new IllegalArgumentException("Order not found");
-        }
-
-        saveAll(orders);
+        deleteById(orderId);
     }
 }

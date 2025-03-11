@@ -6,7 +6,6 @@ import com.example.model.User;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.client.HttpClientErrorException;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -66,25 +65,17 @@ public class UserRepository extends MainRepository<User> {
 
     public void deleteUser(UUID userId) throws HttpClientErrorException {
 
-        // Remove the user's carts and orders
-        User user = getUserById(userId);
-
-        for (Order order : user.getOrders()) {
-            orderRepository.deleteOrderById(order.getId());
-        }
-
         Cart cart = cartRepository.getCartByUserId(userId);
 
         if (cart != null) {
             cartRepository.deleteCartById(cart.getId());
         }
 
-        // Delete the user
         deleteById(userId);
     }
 
     public void deleteAllUsers() {
-        saveAll(new ArrayList<>());
+        clearAll();
     }
 
 

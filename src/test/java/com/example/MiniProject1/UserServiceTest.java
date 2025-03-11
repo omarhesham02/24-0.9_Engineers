@@ -4,6 +4,7 @@ import com.example.model.Cart;
 import com.example.model.Order;
 import com.example.model.Product;
 import com.example.model.User;
+import com.example.repository.OrderRepository;
 import com.example.repository.UserRepository;
 import com.example.service.CartService;
 import com.example.service.UserService;
@@ -33,6 +34,8 @@ class UserServiceTest {
     private Cart cart;
 
     private ArrayList<User> usersJSON;
+    @Autowired
+    private OrderRepository orderRepository;
 
     @BeforeAll
     void backupData() {
@@ -418,4 +421,58 @@ class UserServiceTest {
         assertThrows(IllegalArgumentException.class, () -> userService.deleteUserById(null));
     }
 
+
+    // --- Additional Tests ---
+
+    @Test
+    void deleteUserById_shouldEmptyUserCart_whenUserExists() {
+        // Arrange
+        User user = new User(UUID.randomUUID(), "Test User 14");
+        userService.addUser(user);
+
+        Cart cart = new Cart(user.getId());
+        cartService.addCart(cart);
+
+        // Act
+        userService.deleteUserById(user.getId());
+
+        // Assert
+        assertNull(userService.getUserById(user.getId()));
+        assertTrue(cartService.getCartByUserId(user.getId()).getProducts().isEmpty());
+
+    }
+
+    @Test
+    void deleteUserById_shouldNotDeleteUserOrders_whenUserExists() {
+        // Arrange
+
+        UUID userId = UUID.randomUUID();
+
+        User user = new User(userId, "Test User 15");
+        userService.addUser(user);
+
+        Cart cart = new Cart(user.getId());
+        cartService.addCart(cart);
+
+        Product product = new Product("Test Product", 100.0);
+        Product product2 = new Product("Test Product2", 200.0);
+
+        cartService.addProductToCart(cart.getId(), product);
+        cartService.addProductToCart(cart.getId(), product2);
+
+        userService.addOrderToUser(user.getId());
+
+        // Act
+        userService.deleteUserById(user.getId());
+
+        // Assert
+        assertNull(userService.getUserById(userId));
+        assertNotNull(cartService.getCartByUserId(user.getId()));
+
+        // Verify that the order with the user ID still exists
+        List<Order> orders = orderRepository.getOrdersByUserId(user.getId());
+
+        assertNotNull(orders);
+        assertEquals(1, orders.size());
+    }
 }

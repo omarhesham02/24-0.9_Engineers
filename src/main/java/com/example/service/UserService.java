@@ -63,6 +63,7 @@ public class UserService extends MainService<User> {
     }
 
     public List<Order> getOrdersByUserId(UUID userId) {
+
         if (userId == null) {
             throw new IllegalArgumentException("User ID cannot be null");
         }
@@ -152,12 +153,12 @@ public class UserService extends MainService<User> {
             throw new HttpClientErrorException(HttpStatus.NOT_FOUND, "User not found");
         }
 
-        userRepository.deleteUser(userId);
-
         Cart cart = cartRepository.getCartByUserId(userId);
 
         if (cart != null) {
             cartRepository.deleteCartById(cart.getId());
         }
+
+        userRepository.deleteUser(userId);
     }
 }
