@@ -22,8 +22,19 @@ public class ProductService extends MainService<Product> {
 
 
     public Product addProduct(Product product) {
-        if (product.getId() == null || product.getName() == null) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Product cannot be null");
+        if (product == null || product.getName() == null || product.getName().trim().isEmpty()) {
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Product name cannot be null or empty!");
+        }
+
+        if (product.getId() == null) {
+            product.setId(UUID.randomUUID());
+        }
+
+        if (product.getPrice() < 0) {
+            throw new IllegalArgumentException("Price cannot be negative!");
+        }
+        if (product.getPrice() == 0){
+            throw new IllegalArgumentException("Price cannot be zero!");
         }
 
         Product existingProduct = productRepository.getProductById(product.getId());
@@ -35,6 +46,7 @@ public class ProductService extends MainService<Product> {
         productRepository.addProduct(product);
         return product;
     }
+
 
     public ArrayList<Product> getProducts() {
         return productRepository.getProducts();

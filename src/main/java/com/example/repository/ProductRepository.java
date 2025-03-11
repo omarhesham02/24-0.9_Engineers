@@ -20,10 +20,14 @@ public class ProductRepository extends MainRepository<Product> {
         return Product[].class;
     }
 
-    public Product addProduct(Product product){
+    public Product addProduct(Product product) {
+        if (product.getId() == null) {
+            product.setId(UUID.randomUUID());
+        }
         save(product);
         return product;
     }
+
     public ArrayList<Product> getProducts(){
         return findAll();
     }

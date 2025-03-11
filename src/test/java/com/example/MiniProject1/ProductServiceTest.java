@@ -10,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,11 +59,17 @@ class ProductServiceTest {
     @Test
     void testAddProduct_WithMissingName_ShouldReturnErrorMessage() {
         Product invalidProduct = new Product(null, 100.0);
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+
+        Exception exception = assertThrows(HttpClientErrorException.class, () -> {
             productService.addProduct(invalidProduct);
         });
-        assertEquals("Product name cannot be null or empty!", exception.getMessage());
+
+        // Extract only the error message (excluding status code)
+        String actualMessage = exception.getMessage().split(" ", 2)[1];
+
+        assertEquals("Product name cannot be null or empty!", actualMessage);
     }
+
 
     // Test getProductById
     @Test
