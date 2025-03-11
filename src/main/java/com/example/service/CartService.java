@@ -20,18 +20,7 @@ public class CartService extends MainService<Cart> {
     }
 
     public Cart addCart(Cart cart){
-        if (cart == null) {
-            throw new IllegalArgumentException("Cart cannot be null");
-        }
-
-        Cart existingCart = cartRepository.getCartById(cart.getId());
-
-        if (existingCart != null) {
-            throw new IllegalArgumentException("Cart with this ID already exists");
-        }
-
-        cartRepository.addCart(cart);
-        return cart;
+        return cartRepository.addCart(cart);
     }
 
     public ArrayList<Cart> getCarts(){
@@ -39,10 +28,6 @@ public class CartService extends MainService<Cart> {
     }
 
     public Cart getCartById(UUID cartId) {
-        if (cartId == null) {
-           throw new IllegalArgumentException("cartId cannot be null");
-        }
-
         return cartRepository.getCartById(cartId);
     }
 
@@ -50,34 +35,11 @@ public class CartService extends MainService<Cart> {
         return cartRepository.getCartByUserId(userId);
     }
 
-    public void addProductToCart(UUID userId, Product product) {
-
-        if (product == null) {
-            throw new IllegalArgumentException("Product cannot be null");
-        }
-
-        Cart cart = cartRepository.getCartByUserId(userId);
-
-        if (cart == null) {
-            cart = new Cart(UUID.randomUUID(), userId, new ArrayList<>());
-            cartRepository.addCart(cart);
-        }
-
-        cartRepository.addProductToCart(cart.getId(), product);
+    public void addProductToCart(UUID cartId, Product product) {
+        cartRepository.addProductToCart(cartId, product);
     }
 
     public void deleteProductFromCart(UUID cartId, Product product) {
-
-        Cart cart = cartRepository.getCartById(cartId);
-
-        if (cart == null || cart.getProducts().isEmpty()) {
-            throw new IllegalArgumentException("Cart is empty");
-        }
-
-        if (!cart.getProducts().contains(product)) {
-            throw new IllegalArgumentException("Product is not in the cart");
-        }
-
         cartRepository.deleteProductFromCart(cartId, product);
     }
 
