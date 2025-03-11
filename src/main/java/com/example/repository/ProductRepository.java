@@ -34,8 +34,14 @@ public class ProductRepository extends MainRepository<Product> {
     public Product getProductById(UUID productId){
         return findById(productId);
     }
+
     public Product updateProduct(UUID productId, String newName, double newPrice) {
-        return null;
+        Product product = findById(productId);
+        product.setName(newName);
+        product.setPrice(newPrice);
+        override(product);
+
+        return product;
     }
     public void applyDiscount(double discount, ArrayList<UUID> productIds) {
 
