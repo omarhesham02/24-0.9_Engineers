@@ -52,7 +52,7 @@ class ProductServiceTest {
 
     // Test addProduct
     @Test
-    void testAddProduct_WithValidInput_ShouldReturnSuccess() {
+    void addProduct_WithValidInput_ShouldReturnSuccess() {
 
         Product product = productService.getProductById(validProductId);
 
@@ -62,14 +62,14 @@ class ProductServiceTest {
     }
 
     @Test
-    void testAddProduct_WithInvalidPrice_ShouldReturnErrorMessage() {
+    void addProduct_WithInvalidPrice_ShouldReturnErrorMessage() {
         Product invalidProduct = new Product("Invalid Product", -50.0);
         Exception exception = assertThrows(IllegalArgumentException.class, () -> productService.addProduct(invalidProduct));
         assertEquals("Price cannot be negative!", exception.getMessage());
     }
 
     @Test
-    void testAddProduct_WithMissingName_ShouldReturnErrorMessage() {
+    void addProduct_WithMissingName_ShouldReturnErrorMessage() {
         Product invalidProduct = new Product(null, 100.0);
 
         Exception exception = assertThrows(HttpClientErrorException.class, () -> productService.addProduct(invalidProduct));
@@ -83,7 +83,7 @@ class ProductServiceTest {
 
     // Test getProductById
     @Test
-    void testGetProductById_WithValidId_ShouldReturnSuccess() {
+    void getProductById_WithValidId_ShouldReturnSuccess() {
 
         Product product = productService.getProductById(validProductId);
 
@@ -92,21 +92,21 @@ class ProductServiceTest {
     }
 
     @Test
-    void testGetProductById_WithInvalidId_ShouldReturnNull() {
+    void getProductById_WithInvalidId_ShouldReturnNull() {
         UUID invalidId = UUID.randomUUID();
 
         assertNull(productService.getProductById(invalidId));
     }
 
     @Test
-    void testGetProductById_WithNullId_ShouldReturnErrorMessage() {
+    void getProductById_WithNullId_ShouldReturnErrorMessage() {
         Exception exception = assertThrows(IllegalArgumentException.class, () -> productService.getProductById(null));
         assertEquals("Product ID cannot be null!", exception.getMessage());
     }
 
     // Test getProducts
     @Test
-    void testGetProducts_WithValidInputs_ShouldReturnSuccess() {
+    void getProducts_WithValidInputs_ShouldReturnSuccess() {
         Product product1 = new Product(UUID.randomUUID(), "Product 1", 100.0);
         Product product2 = new Product(UUID.randomUUID(), "Product 2", 200.0);
         Product product3 = new Product(UUID.randomUUID(), "Product 3", 300.0);
@@ -124,7 +124,7 @@ class ProductServiceTest {
     }
 
     @Test
-    void testGetProducts_WithEmptyList_ShouldReturnSuccess() {
+    void getProducts_WithEmptyList_ShouldReturnSuccess() {
         // Clear all products
         productRepository.saveAll(new ArrayList<>());
 
@@ -136,7 +136,7 @@ class ProductServiceTest {
 
     // Test updateProduct
     @Test
-    void testUpdateProduct_WithValidInputs_ShouldReturnSuccess() {
+    void updateProduct_WithValidInputs_ShouldReturnSuccess() {
 
         String updatedName = "Updated Name";
         double updatedPrice = 150.0;
@@ -151,7 +151,7 @@ class ProductServiceTest {
     }
 
     @Test
-    void testUpdateProduct_InvalidNegativePrice_ShouldReturnErrorMessage() {
+    void updateProduct_InvalidNegativePrice_ShouldReturnErrorMessage() {
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> productService.updateProduct(validProductId, "Updated Name", -50.0));
 
@@ -160,21 +160,21 @@ class ProductServiceTest {
     }
 
     @Test
-    void testUpdateProduct_InvalidZeroPrice_ShouldReturnErrorMessage() {
+    void updateProduct_InvalidZeroPrice_ShouldReturnErrorMessage() {
         Exception exception = assertThrows(IllegalArgumentException.class, () -> productService.updateProduct(validProductId, "Updated Name", 0.0));
         assertEquals("Price cannot be zero!", exception.getMessage());
     }
 
 
     @Test
-    void testUpdateProduct_MissingName_ShouldReturnErrorMessage() {
+    void updateProduct_MissingName_ShouldReturnErrorMessage() {
         Exception exception = assertThrows(IllegalArgumentException.class, () -> productService.updateProduct(validProductId, null, 150.0));
         assertEquals("Product name cannot be null or empty!", exception.getMessage());
     }
 
     // Test deleteProductById
     @Test
-    void testDeleteProductById_TestWithValidId_ShouldReturnSuccess() {
+    void deleteProductById_TestWithValidId_ShouldReturnSuccess() {
 
         productService.deleteProductById(validProductId);
 
@@ -185,7 +185,7 @@ class ProductServiceTest {
 
 
     @Test
-    void testDeleteProductById_InvalidId_ShouldReturnErrorMessage() {
+    void deleteProductById_InvalidId_ShouldReturnErrorMessage() {
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> productService.deleteProductById(UUID.randomUUID()));
 
@@ -193,7 +193,7 @@ class ProductServiceTest {
     }
 
     @Test
-    void testDeleteProductById_NullId_ShouldReturnErrorMessage() {
+    void deleteProductById_NullId_ShouldReturnErrorMessage() {
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> productService.deleteProductById(null));
 
@@ -203,7 +203,7 @@ class ProductServiceTest {
 
     // Test applyDiscount
     @Test
-    void testApplyDiscount_WithValidInputs_ShouldReturnSuccess() {
+    void applyDiscount_WithValidInputs_ShouldReturnSuccess() {
 
         productService.applyDiscount(10.0, new ArrayList<>(Collections.singletonList(validProductId)));
 
@@ -214,7 +214,7 @@ class ProductServiceTest {
     }
 
     @Test
-    void testApplyDiscount_WithInvalidPercentage_ShouldReturnErrorMessage() {
+    void applyDiscount_WithInvalidPercentage_ShouldReturnErrorMessage() {
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> productService.applyDiscount(-10.0, new ArrayList<>(Collections.singletonList(validProductId))));
 
@@ -223,7 +223,7 @@ class ProductServiceTest {
     }
 
     @Test
-    void testApplyDiscount_EmptyProductList_ShouldReturnErrorMessage() {
+    void applyDiscount_EmptyProductList_ShouldReturnErrorMessage() {
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> productService.applyDiscount(10.0, new ArrayList<>()));
 
@@ -231,7 +231,7 @@ class ProductServiceTest {
     }
 
     @Test
-    void testApplyDiscount_NullDiscount_ShouldReturnErrorMessage() {
+    void applyDiscount_NullDiscount_ShouldReturnErrorMessage() {
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> productService.applyDiscount(null, new ArrayList<>(Collections.singletonList(validProductId))));
 
