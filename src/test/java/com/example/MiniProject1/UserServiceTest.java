@@ -326,12 +326,18 @@ class UserServiceTest {
     }
 
     @Test
-    void emptyUserCart_ShouldThrowException_WhenCartDoesNotExist() {
+    void emptyUserCart_ShouldReturnEmptyCar_WhenCartDoesNotExist() {
         // Arrange
-        UUID nonExistentUserId = UUID.randomUUID();
+        User user = new User(UUID.randomUUID(), "Test User 14");
+        userService.addUser(user);
 
-        // Act & Assert
-        assertThrows(Exception.class, () -> userService.emptyCart(nonExistentUserId));
+        userService.emptyCart(user.getId());
+
+        Cart cart = cartService.getCartByUserId(user.getId());
+
+        assertNotNull(cart);
+        assertTrue(cart.getProducts().isEmpty());
+
     }
 
     @Test
