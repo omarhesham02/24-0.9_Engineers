@@ -15,13 +15,11 @@ public class Order implements Identifiable {
     private double totalPrice;
     private List<Product> products = new ArrayList<>();
 
-    public Order() {}
+    public Order() {
+    }
 
     public Order(UUID userId, double totalPrice, List<Product> products) {
-        this.id = UUID.randomUUID();
-        this.userId = userId;
-        this.totalPrice = totalPrice;
-        this.products = products;
+        this(UUID.randomUUID(), userId, totalPrice, products);
     }
 
     public Order(UUID id, UUID userId, double totalPrice, List<Product> products) {
@@ -30,7 +28,6 @@ public class Order implements Identifiable {
         this.totalPrice = totalPrice;
         this.products = products;
     }
-
 
     public UUID getId() {
         return id;
@@ -71,8 +68,10 @@ public class Order implements Identifiable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Order order)) return false;
+        if (this == o)
+            return true;
+        if (!(o instanceof Order order))
+            return false;
         return id.equals(order.id) && userId.equals(order.userId) && products.equals(order.products);
     }
 
