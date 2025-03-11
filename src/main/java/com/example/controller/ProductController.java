@@ -2,6 +2,8 @@ package com.example.controller;
 
 import com.example.model.Product;
 import com.example.service.ProductService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -11,7 +13,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/product")
 public class ProductController {
-
     private final ProductService productService;
 
     public ProductController(ProductService productService) {
@@ -19,51 +20,43 @@ public class ProductController {
     }
 
     @PostMapping("/")
-    public Product addProduct(@RequestBody Product product) {
-        return productService.addProduct(product);
+    public ResponseEntity<Product> addProduct(@RequestBody Product product) {
+        return ResponseEntity.ok(productService.addProduct(product));
     }
 
     @GetMapping("/")
-    public ArrayList<Product> getProducts() {
-        return productService.getProducts();
+    public ResponseEntity<ArrayList<Product>> getProducts() {
+        return ResponseEntity.ok(productService.getProducts());
     }
 
     @GetMapping("/{productId}")
-    public Product getProductById(@PathVariable UUID productId) {
-        return productService.getProductById(productId);
+    public ResponseEntity<?> getProductById(@PathVariable UUID productId) {
+        Product product = productService.getProductById(productId);
+        return product != null ? ResponseEntity.ok(product) : ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found!");
     }
 
     @PutMapping("/update/{productId}")
-    public Product updateProduct(@PathVariable UUID productId, @RequestBody Map<String, Object> body) {
-
+    public ResponseEntity<Product> updateProduct(@PathVariable UUID productId, @RequestBody Map<String, Object> body) {
         String newName = (String) body.get("newName");
-        Double newPrice = (Double) body.get("newPrice");
-
-        try {
-            return productService.updateProduct(productId, newName, newPrice);
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
+        double newPrice = ((Number) body.get("newPrice")).doubleValue();
+        return ResponseEntity.ok(productService.updateProduct(productId, newName, newPrice));
     }
 
     @PutMapping("/applyDiscount")
-    public String applyDiscount(@RequestParam double discount,@RequestBody ArrayList<UUID> productIds){
-        try {
-            productService.applyDiscount(discount, productIds);
-            return "Discount applied successfully";
-        } catch (IllegalArgumentException e){
-            return "Failed to apply discount";
+    public ResponseEntity<String> applyDiscount(@RequestParam Double discount, @RequestBody ArrayList<UUID> productIds) {
+        if (discount == null) {
+            return ResponseEntity.badRequest().body("Discount value must not be null!");
         }
+        if (productIds == null || productIds.isEmpty()) {
+            return ResponseEntity.badRequest().body("Product ID list must not be empty!");
+        }
+        productService.applyDiscount(discount, productIds);
+        return ResponseEntity.ok("Discount applied successfully");
     }
 
     @DeleteMapping("/delete/{productId}")
-    public String deleteProductById(@PathVariable UUID productId) throws IllegalArgumentException{
-        try {
-            productService.deleteProductById(productId);
-            return "Product deleted successfully";
-        } catch (IllegalArgumentException e){
-            return e.getMessage();
-        }
+    public ResponseEntity<String> deleteProductById(@PathVariable UUID productId) {
+        productService.deleteProductById(productId);
+        return ResponseEntity.ok("Product deleted successfully");
     }
-
 }

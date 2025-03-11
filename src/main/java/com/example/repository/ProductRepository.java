@@ -8,10 +8,6 @@ import java.util.UUID;
 
 @Repository
 public class ProductRepository extends MainRepository<Product> {
-
-    public ProductRepository() {
-    }
-
     @Override
     protected String getDataPath() {
         return "src/main/java/com/example/data/products.json";
@@ -24,10 +20,14 @@ public class ProductRepository extends MainRepository<Product> {
         return Product[].class;
     }
 
-    public Product addProduct(Product product){
+    public Product addProduct(Product product) {
+        if (product.getId() == null) {
+            product.setId(UUID.randomUUID());
+        }
         save(product);
         return product;
     }
+
     public ArrayList<Product> getProducts(){
         return findAll();
     }
@@ -36,12 +36,16 @@ public class ProductRepository extends MainRepository<Product> {
     }
 
     public Product updateProduct(UUID productId, String newName, double newPrice) {
-        Product product = findById(productId);
-        product.setName(newName);
-        product.setPrice(newPrice);
-        override(product);
-
-        return product;
+        ArrayList<Product> products = findAll();
+        for (Product product : products) {
+            if (product.getId() != null && product.getId().equals(productId)) {
+                product.setName(newName);
+                product.setPrice(newPrice);
+                overrideData(products);
+                return product;
+            }
+        }
+        return null;
     }
     public void applyDiscount(double discount, ArrayList<UUID> productIds) {
 
@@ -55,7 +59,10 @@ public class ProductRepository extends MainRepository<Product> {
             override(product);
         }
     }
-    public void deleteProductById(UUID productId){
 
+    public void deleteProductById(UUID productId) {
+        ArrayList<Product> products = findAll();
+        products.removeIf(product -> product.getId() != null && product.getId().equals(productId));
+        overrideData(products);
     }
 }
