@@ -165,8 +165,8 @@ class CartServiceTest {
     }
 
     @Test
-    void getCartByUserId_shouldReturnNull_whenCartNotFound() {
-        assertNull(cartService.getCartByUserId(UUID.randomUUID()));
+    void getCartByUserId_shouldCreateNewCart_whenCartNotFound() {
+        assertNotNull(cartService.getCartByUserId(UUID.randomUUID()));
     }
 
     @Test
