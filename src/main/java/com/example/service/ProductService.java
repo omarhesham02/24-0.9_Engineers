@@ -48,6 +48,11 @@ public class ProductService extends MainService<Product> {
     }
 
     public Product updateProduct(UUID productId, String newName, double newPrice) {
+
+        if (productId == null) {
+            throw new IllegalArgumentException("Product ID cannot be null");
+        }
+
         return productRepository.updateProduct(productId, newName, newPrice);
     }
 
